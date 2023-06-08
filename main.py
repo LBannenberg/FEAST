@@ -1,6 +1,6 @@
-from feast.tree import Root
 from feast.grammar import Grammar
 from feast.genome import Genome
+import feast.tree as tree
 
 genome_length = 10
 codon_size = 10000
@@ -26,8 +26,7 @@ if __name__ == '__main__':
         print(f"try {tries} valid: {not invalid}")
     print(sentence)
 
-    tree = Root()
-    tree.inflate(sentence)
+    tree = tree.create(sentence)
     print(tree)
 
     observables = {

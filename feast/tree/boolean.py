@@ -6,13 +6,13 @@ class IfThenElse(Tree):
     node_type = 'if'
 
     def inflate(self, recipe):
-        child, recipe = self._create(recipe)
+        child, recipe = self.create(recipe, self.depth+1, self.debug)
         self.children.append(child)
 
-        child, recipe = self._create(recipe)
+        child, recipe = self.create(recipe, self.depth+1, self.debug)
         self.children.append(child)
 
-        child, recipe = self._create(recipe)
+        child, recipe = self.create(recipe, self.depth+1, self.debug)
         self.children.append(child)
 
         return recipe
@@ -46,12 +46,12 @@ class BooleanExpression(Tree):
 
     def inflate(self, recipe):
         if self.value in ['not', 'truthy']:
-            child, recipe = self._create(recipe)
+            child, recipe = self.create(recipe, self.depth+1, self.debug)
             self.children.append(child)
         if self.value in ['and', 'or', '>', '>=', '==', '=<', '<', '!=']:
-            child, recipe = self._create(recipe)
+            child, recipe = self.create(recipe, self.depth+1, self.debug)
             self.children.append(child)
-            child, recipe = self._create(recipe)
+            child, recipe = self.create(recipe, self.depth+1, self.debug)
             self.children.append(child)
         return recipe
 

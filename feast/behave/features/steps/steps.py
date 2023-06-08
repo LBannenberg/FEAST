@@ -1,4 +1,4 @@
-import feast.gardener as gardener
+import feast.tree as tree
 from behave import *
 import math
 
@@ -10,7 +10,7 @@ def step_implementation(context, recipe):
 
 @when('we inflate a tree from that recipe')
 def step_implementation(context):
-    context.tree = gardener.make_tree(context.recipe)
+    context.tree = tree.create(context.recipe)
 
 
 @then('the deflate is equal to the recipe')

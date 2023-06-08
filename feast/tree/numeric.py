@@ -18,12 +18,12 @@ class NumericExpression(Tree):
 
     def inflate(self, recipe):
         if self.value in ['negative', 'numeric']:  # unary operators
-            child, recipe = self._create(recipe)
+            child, recipe = self.create(recipe, self.depth+1, self.debug)
             self.children.append(child)
         if self.value in ['+', '-', '*', '/', '%', '^']:  # binary operators
-            child, recipe = self._create(recipe)
+            child, recipe = self.create(recipe, self.depth+1, self.debug)
             self.children.append(child)
-            child, recipe = self._create(recipe)
+            child, recipe = self.create(recipe, self.depth+1, self.debug)
             self.children.append(child)
         return recipe
 

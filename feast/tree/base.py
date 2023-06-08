@@ -16,32 +16,35 @@ class Tree(ABC):
         return '|'.join([self.node_type + ':' + self.value]
                         + [child.deflate() for child in self.children])
 
-    def _create(self, recipe):
+    @staticmethod
+    def create(recipe, depth=0, debug=False):
+        if type(recipe) is str:
+            recipe = recipe.split('|')
         ingredient, remaining_ingredients = recipe[0], recipe[1:]
         node_type, node_value = ingredient.split(':')
         node = None
 
         if node_type == 'numeric':
             from feast.tree.numeric import Numeric
-            node = Numeric(node_value, self.depth + 1, self.debug)
+            node = Numeric(node_value, depth, debug)
         if node_type == 'numeric_expression':
             from feast.tree.numeric import NumericExpression
-            node = NumericExpression(node_value, self.depth + 1, self.debug)
+            node = NumericExpression(node_value, depth, debug)
         if node_type == 'numeric_observable':
             from feast.tree.numeric import NumericObservable
-            node = NumericObservable(node_value, self.depth + 1, self.debug)
+            node = NumericObservable(node_value, depth, debug)
         if node_type == 'if':
             from feast.tree.boolean import IfThenElse
-            node = IfThenElse(node_value, self.depth + 1, self.debug)
+            node = IfThenElse(node_value, depth, debug)
         if node_type == 'boolean':
             from feast.tree.boolean import Boolean
-            node = Boolean(node_value, self.depth + 1, self.debug)
+            node = Boolean(node_value, depth, debug)
         if node_type == 'boolean_expression':
             from feast.tree.boolean import BooleanExpression
-            node = BooleanExpression(node_value, self.depth + 1, self.debug)
+            node = BooleanExpression(node_value, depth, debug)
         if node_type == 'boolean_observable':
             from feast.tree.boolean import BooleanObservable
-            node = BooleanObservable(node_value, self.depth + 1, self.debug)
+            node = BooleanObservable(node_value, depth, debug)
 
         if node is None:
             raise ValueError(f"Cannot create node from ingredient {node_type}:{node_value}")
