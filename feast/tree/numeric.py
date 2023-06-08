@@ -4,7 +4,7 @@ from feast.tree.base import Tree
 class Numeric(Tree):
     node_type = 'numeric'
 
-    def inflate(self, recipe):
+    def _continue_deserialization(self, recipe):
         return recipe
 
     def evaluate(self, observables=None) -> float:
@@ -16,7 +16,7 @@ class Numeric(Tree):
 class NumericExpression(Tree):
     node_type = 'numeric_expression'
 
-    def inflate(self, recipe):
+    def _continue_deserialization(self, recipe):
         if self.value in ['negative', 'numeric']:  # unary operators
             child, recipe = self.create(recipe, self.depth+1, self.debug)
             self.children.append(child)
@@ -63,7 +63,7 @@ class NumericExpression(Tree):
 class NumericObservable(Tree):
     node_type = 'numeric_observable'
 
-    def inflate(self, recipe):
+    def _continue_deserialization(self, recipe):
         return recipe
 
     def evaluate(self, observables=None) -> float:

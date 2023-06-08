@@ -35,5 +35,5 @@ if __name__ == '__main__':
     }
     print(tree.evaluate(observables))
 
-    print(tree.deflate())
-    print(f"Correctly deflated: {sentence == tree.deflate()}")
+    print(tree.serialize())
+    print(f"Correctly deflated: {sentence == tree.serialize()}")

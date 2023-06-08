@@ -5,7 +5,7 @@ from typing import Union
 class IfThenElse(Tree):
     node_type = 'if'
 
-    def inflate(self, recipe):
+    def _continue_deserialization(self, recipe):
         child, recipe = self.create(recipe, self.depth+1, self.debug)
         self.children.append(child)
 
@@ -32,7 +32,7 @@ class IfThenElse(Tree):
 class Boolean(Tree):
     node_type = 'boolean'
 
-    def inflate(self, recipe):
+    def _continue_deserialization(self, recipe):
         return recipe
 
     def evaluate(self, observables=None) -> bool:
@@ -44,7 +44,7 @@ class Boolean(Tree):
 class BooleanExpression(Tree):
     node_type = 'boolean_expression'
 
-    def inflate(self, recipe):
+    def _continue_deserialization(self, recipe):
         if self.value in ['not', 'truthy']:
             child, recipe = self.create(recipe, self.depth+1, self.debug)
             self.children.append(child)
@@ -90,7 +90,7 @@ class BooleanExpression(Tree):
 class BooleanObservable(Tree):
     node_type = 'boolean_observable'
 
-    def inflate(self, recipe):
+    def _continue_deserialization(self, recipe):
         return recipe
 
     def evaluate(self, observables=None) -> bool:

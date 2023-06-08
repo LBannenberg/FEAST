@@ -15,7 +15,7 @@ def step_implementation(context):
 
 @then('the deflate is equal to the recipe')
 def step_implementation(context):
-    assert context.recipe == context.tree.deflate()
+    assert context.recipe == context.tree.serialize()
 
 
 @then('it evaluates to to the correct result: {result}')

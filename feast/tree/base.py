@@ -12,10 +12,6 @@ class Tree(ABC):
         self.value = value
         self.children = []
 
-    def deflate(self):
-        return '|'.join([self.node_type + ':' + self.value]
-                        + [child.deflate() for child in self.children])
-
     @staticmethod
     def create(recipe, depth=0, debug=False):
         if type(recipe) is str:
@@ -49,15 +45,15 @@ class Tree(ABC):
         if node is None:
             raise ValueError(f"Cannot create node from ingredient {node_type}:{node_value}")
 
-        return [node, node.inflate(remaining_ingredients)]
+        return [node, node._continue_deserialization(remaining_ingredients)]
 
-    def __repr__(self):
-        this = f"\n{self._indent()}{self.node_type}:{self.value}"
-        children = "".join([str(child) for child in self.children])
-        return this + children
+    def serialize(self):
+        return '|'.join([self.node_type + ':' + self.value]
+                        + [child.serialize() for child in self.children])
 
-    def _indent(self):
-        return self.depth * '  '
+    @abstractmethod
+    def evaluate(self, observables=None) -> Union[bool, float]:
+        pass
 
     @property
     def height(self):
@@ -68,9 +64,15 @@ class Tree(ABC):
         return self._height
 
     @abstractmethod
-    def inflate(self, recipe):
+    def _continue_deserialization(self, recipe):
         pass
 
-    @abstractmethod
-    def evaluate(self, observables=None) -> Union[bool, float]:
-        pass
+    def __repr__(self):
+        this = f"\n{self._indent()}{self.node_type}:{self.value}"
+        children = "".join([str(child) for child in self.children])
+        return this + children
+
+    def _indent(self):
+        return self.depth * '  '
+
+
