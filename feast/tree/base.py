@@ -22,25 +22,25 @@ class Tree(ABC):
         node = None
 
         if node_type == 'numeric':
-            from tree.numeric import Numeric
+            from feast.tree.numeric import Numeric
             node = Numeric(node_value, self.depth + 1, self.debug)
         if node_type == 'numeric_expression':
-            from tree.numeric import NumericExpression
+            from feast.tree.numeric import NumericExpression
             node = NumericExpression(node_value, self.depth + 1, self.debug)
         if node_type == 'numeric_observable':
-            from tree.numeric import NumericObservable
+            from feast.tree.numeric import NumericObservable
             node = NumericObservable(node_value, self.depth + 1, self.debug)
         if node_type == 'if':
-            from tree.boolean import IfThenElse
+            from feast.tree.boolean import IfThenElse
             node = IfThenElse(node_value, self.depth + 1, self.debug)
         if node_type == 'boolean':
-            from tree.boolean import Boolean
+            from feast.tree.boolean import Boolean
             node = Boolean(node_value, self.depth + 1, self.debug)
         if node_type == 'boolean_expression':
-            from tree.boolean import BooleanExpression
+            from feast.tree.boolean import BooleanExpression
             node = BooleanExpression(node_value, self.depth + 1, self.debug)
         if node_type == 'boolean_observable':
-            from tree.boolean import BooleanObservable
+            from feast.tree.boolean import BooleanObservable
             node = BooleanObservable(node_value, self.depth + 1, self.debug)
 
         if node is None:

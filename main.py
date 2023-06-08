@@ -1,6 +1,6 @@
-from tree import Root
-from grammar import Grammar
-from genome import Genome
+from feast.tree import Root
+from feast.grammar import Grammar
+from feast.genome import Genome
 
 genome_length = 10
 codon_size = 10000

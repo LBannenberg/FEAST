@@ -1,4 +1,4 @@
-from tree.base import Tree
+from feast.tree.base import Tree
 
 
 class Numeric(Tree):
