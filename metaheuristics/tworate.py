@@ -7,18 +7,16 @@ class TwoRateEa(Heuristic):
     child_pop = []
     rate = 2
 
-    def __init__(self, problem, dimension: int, budget: int, child_pop_size: int, adaptation_function):
+    def __init__(self, problem, dimension: int, budget: int, child_pop_size: int):
         super().__init__(problem, dimension, budget)
         self.child_pop_size = child_pop_size
-        self.adaptation_function = adaptation_function
         self.initialize()
 
     def initialize(self):
         # generate one individual
         self.best = [random.randint(0, 1) for i in range(self.dimension)]
+        self.problem(self.best)
         self.f_best = self.problem(self.best)
-        print(
-            f"Initialized with {self.best} valued at {self.f_best} with {self.problem.state.evaluations} evaluation(s) used")
 
     def mutation(self, probability_per_bit):
         mutations = []
@@ -55,16 +53,14 @@ class TwoRateEa(Heuristic):
                     best_child_is_low = False
 
             if f_current_best > self.f_best:
-                print(f"Epoch {epoch} best {self.f_best} < {f_current_best} (target: {self.problem.optimum.y}; evaluations: {self.problem.state.evaluations})")
                 self.best = current_best
                 self.f_best = f_current_best
 
-            self.rate = self.adaptation_function(best_child_is_low, self.rate, self.dimension)
-
-        print(
-            f'Finished. Best individual: {self.best} with value {self.f_best}',
-            f' after using {self.problem.state.evaluations}')
-
-        return int(self.f_best)
+            observables = {
+                'boolean': {'best_child_is_low': best_child_is_low},
+                'numeric': {'rate': self.rate, 'dimension': self.dimension}
+            }
+            self.rate = round(max(self.adaptation_function(observables), 0.001), 3)
+        return [int(self.f_best), self.best, self.problem]
 
 
