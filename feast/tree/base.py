@@ -1,19 +1,18 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from typing import Union
 
 
 class Tree(ABC):
     node_type = 'tree'
+    indent = ' '
 
-    def __init__(self, value='root', depth=0, debug=False):
+    def __init__(self, value='root'):
         self._height = None
-        self.depth = depth
-        self.debug = debug
         self.value = value
         self.children = []
 
     @staticmethod
-    def create(recipe, depth=0, debug=False):
+    def create(recipe):
         if type(recipe) is str:
             recipe = recipe.split('|')
         ingredient, remaining_ingredients = recipe[0], recipe[1:]
@@ -22,25 +21,25 @@ class Tree(ABC):
 
         if node_type == 'numeric':
             from feast.tree.numeric import Numeric
-            node = Numeric(node_value, depth, debug)
+            node = Numeric(node_value)
         if node_type == 'numeric_expression':
             from feast.tree.numeric import NumericExpression
-            node = NumericExpression(node_value, depth, debug)
+            node = NumericExpression(node_value)
         if node_type == 'numeric_observable':
             from feast.tree.numeric import NumericObservable
-            node = NumericObservable(node_value, depth, debug)
+            node = NumericObservable(node_value)
         if node_type == 'if':
             from feast.tree.boolean import IfThenElse
-            node = IfThenElse(node_value, depth, debug)
+            node = IfThenElse(node_value)
         if node_type == 'boolean':
             from feast.tree.boolean import Boolean
-            node = Boolean(node_value, depth, debug)
+            node = Boolean(node_value)
         if node_type == 'boolean_expression':
             from feast.tree.boolean import BooleanExpression
-            node = BooleanExpression(node_value, depth, debug)
+            node = BooleanExpression(node_value)
         if node_type == 'boolean_observable':
             from feast.tree.boolean import BooleanObservable
-            node = BooleanObservable(node_value, depth, debug)
+            node = BooleanObservable(node_value)
 
         if node is None:
             raise ValueError(f"Cannot create node from ingredient {node_type}:{node_value}")
@@ -67,12 +66,19 @@ class Tree(ABC):
     def _continue_deserialization(self, recipe):
         pass
 
-    def __repr__(self):
-        this = f"\n{self._indent()}{self.node_type}:{self.value}"
-        children = "".join([str(child) for child in self.children])
+    def __repr__(self, depth=0):
+        this = f"\n{self.indent * depth}{self.node_type}:{self.value}"
+        children = "".join([child.__repr__(depth+1) for child in self.children])
         return this + children
 
-    def _indent(self):
-        return self.depth * '  '
+    @property
+    @abstractmethod
+    def formula(self) -> str:
+        pass
 
-
+    @property
+    def is_static(self) -> bool:
+        for child in self.children:
+            if not child.is_static:
+                return False
+        return True

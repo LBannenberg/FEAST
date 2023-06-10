@@ -6,27 +6,25 @@ class IfThenElse(Tree):
     node_type = 'if'
 
     def _continue_deserialization(self, recipe):
-        child, recipe = self.create(recipe, self.depth+1, self.debug)
+        child, recipe = self.create(recipe)
         self.children.append(child)
 
-        child, recipe = self.create(recipe, self.depth+1, self.debug)
+        child, recipe = self.create(recipe)
         self.children.append(child)
 
-        child, recipe = self.create(recipe, self.depth+1, self.debug)
+        child, recipe = self.create(recipe)
         self.children.append(child)
 
         return recipe
 
     def evaluate(self, observables=None) -> Union[bool, float]:
-        if self.debug:
-            print(f"{self._indent()}if:")
         if self.children[0].evaluate(observables):
-            if self.debug:
-                print(f"{self._indent()}then:")
             return self.children[1].evaluate(observables)
-        if self.debug:
-            print(f"{self._indent()}else:")
         return self.children[2].evaluate(observables)
+
+    @property
+    def formula(self) -> str:
+        return f"IF({self.children[0].formula} ; {self.children[1].formula} ; {self.children[2].formula})"
 
 
 class Boolean(Tree):
@@ -36,9 +34,11 @@ class Boolean(Tree):
         return recipe
 
     def evaluate(self, observables=None) -> bool:
-        if self.debug:
-            print(f"{self._indent()}[constant] : {self.value}")
         return self.value == 'true'
+
+    @property
+    def formula(self) -> str:
+        return str(self.value == 'true')
 
 
 class BooleanExpression(Tree):
@@ -46,19 +46,17 @@ class BooleanExpression(Tree):
 
     def _continue_deserialization(self, recipe):
         if self.value in ['not', 'truthy']:
-            child, recipe = self.create(recipe, self.depth+1, self.debug)
+            child, recipe = self.create(recipe)
             self.children.append(child)
-        if self.value in ['and', 'or', '>', '>=', '==', '=<', '<', '!=']:
-            child, recipe = self.create(recipe, self.depth+1, self.debug)
+        if self.value in ['and', 'or', '>', '>=', '==', '<=', '<', '!=']:
+            child, recipe = self.create(recipe)
             self.children.append(child)
-            child, recipe = self.create(recipe, self.depth+1, self.debug)
+            child, recipe = self.create(recipe)
             self.children.append(child)
         return recipe
 
     def evaluate(self, observables=None) -> bool:
         first_operand = self.children[0].evaluate(observables)
-        if self.debug and self.value in ['not']:  # unary operators
-            print(f"{self._indent()}boolean_expression : {self.value} {first_operand}")
 
         if self.value == 'not':
             return not first_operand
@@ -66,8 +64,6 @@ class BooleanExpression(Tree):
             return first_operand != 0
 
         second_operand = self.children[1].evaluate(observables)
-        if self.debug:
-            print(f"{self._indent()}boolean_expression : {first_operand} {self.value} {second_operand}")
 
         if self.value == 'and':
             return first_operand and second_operand
@@ -86,6 +82,12 @@ class BooleanExpression(Tree):
         if self.value == '!=':
             return first_operand != second_operand
 
+    @property
+    def formula(self) -> str:
+        if self.value in ['truthy', 'not']:
+            return f"{str(self.value).upper()}({self.children[0].formula})"
+        return f"({self.children[0].formula} {self.value.upper()} {self.children[1].formula})"
+
 
 class BooleanObservable(Tree):
     node_type = 'boolean_observable'
@@ -94,6 +96,12 @@ class BooleanObservable(Tree):
         return recipe
 
     def evaluate(self, observables=None) -> bool:
-        if self.debug:
-            print(f"{self._indent()}[observable : {self.value}]: {str(observables[self.value])}")
-        return observables[self.value]
+        return observables['boolean'][self.value]
+
+    @property
+    def formula(self) -> str:
+        return self.value
+
+    @property
+    def is_static(self) -> bool:
+        return False
