@@ -19,12 +19,10 @@ def train(grammar):
         print(f"Generation {i}")
         print(f"  Formula: {root.formula}")
         print(f"  Static?: {'yes' if root.is_static else 'no'}")
-        def adaptation(observables):
-            return root.evaluate(observables)
 
         f = common.get_fresh_problem()
         inner_heuristic = common.get_fresh_inner_heuristic(f)
-        inner_heuristic.adaptation_function = adaptation
+        inner_heuristic.adaptation_function = root.evaluate
         f_best, best, f = inner_heuristic.run()
         if f.state.evaluations < lowest_evaluations:
             lowest_evaluations = f.state.evaluations
@@ -40,14 +38,12 @@ if __name__ == '__main__':
     best_recipe = train(grammar)
     root = tree.create(best_recipe)
 
-    def adaptation(observables):
-        return root.evaluate(observables)
 
     f = common.get_fresh_problem()
     l = common.get_logger(EXPERIMENT_NAME, ALGORITHM_NAME)
     f.attach_logger(l)
 
     inner_heuristic = common.get_fresh_inner_heuristic(f)
-    inner_heuristic.adaptation_function = adaptation
+    inner_heuristic.adaptation_function = root.evaluate
     f_best, best, f = inner_heuristic.run()
     print(f"result: {f_best} as {best} using {f.state.evaluations} evaluations")

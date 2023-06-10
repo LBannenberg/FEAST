@@ -16,15 +16,11 @@ sentence = '|'.join([
 root = tree.create(sentence)
 
 
-def adaptation(observables):
-    return root.evaluate(observables)
-
-
 if __name__ == '__main__':
     f = common.get_fresh_problem()
     l = common.get_logger(EXPERIMENT_NAME, ALGORITHM_NAME)
     f.attach_logger(l)
     inner_heuristic = common.get_fresh_inner_heuristic(f)
-    inner_heuristic.adaptation_function = adaptation
+    inner_heuristic.adaptation_function = root.evaluate
     f_best, best, f = inner_heuristic.run()
     print(f"result: {f_best} as {best} using {f.state.evaluations} evaluations")
