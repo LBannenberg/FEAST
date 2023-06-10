@@ -96,15 +96,19 @@ class Grammar:
             ['if:numeric', 'BOOLEAN_EXPRESSION', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
             ['numeric_expression:negative', 'NUMERIC_EXPRESSION']
         ],
-        'NUMERIC': [['numeric:' + str(num)] for num in [-1, -0.5, 0, 0.1, 0.5, 1, 2, 3, 4, 5, 10, 20, 50, 100]],
+        'NUMERIC': [['numeric:' + str(num)]
+                    for num in [-1, -0.5, 0, 0.1, 0.5, 1, 2, 3, 4, 5, 10, 20, 50, 100, 'uniform']
+                    ],
         # 'NUMERIC_OBSERVABLE': [],  # added during __init__ if any names are passed
         'NUMERIC_BINARY_EXPRESSION': [
             ['numeric_expression:+', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
             ['numeric_expression:-', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
             ['numeric_expression:*', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
             ['numeric_expression:/', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            ['numeric_expression:%', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            ['numeric_expression:^', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION']
+            # ['numeric_expression:%', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
+            # ['numeric_expression:^', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
+            ['numeric_expression:min', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
+            ['numeric_expression:max', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION']
         ],
         'BOOLEAN_EXPRESSION': [
             ['BOOLEAN'],
@@ -122,7 +126,7 @@ class Grammar:
             ['boolean_expression:>', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
             ['boolean_expression:>=', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
             ['boolean_expression:==', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            ['boolean_expression:=<', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
+            ['boolean_expression:<=', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
             ['boolean_expression:<', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
             ['boolean_expression:!=', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION']
         ]
