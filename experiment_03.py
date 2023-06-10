@@ -23,7 +23,7 @@ def train(grammar):
         f = common.get_fresh_problem()
         inner_heuristic = common.get_fresh_inner_heuristic(f)
         inner_heuristic.adaptation_function = root.evaluate
-        f_best, best, f = inner_heuristic.run()
+        y_best, x_best, f = inner_heuristic.run()
         if f.state.evaluations < lowest_evaluations:
             lowest_evaluations = f.state.evaluations
             best_recipe = recipe
@@ -45,5 +45,5 @@ if __name__ == '__main__':
 
     inner_heuristic = common.get_fresh_inner_heuristic(f)
     inner_heuristic.adaptation_function = root.evaluate
-    f_best, best, f = inner_heuristic.run()
-    print(f"result: {f_best} as {best} using {f.state.evaluations} evaluations")
+    y_best, x_best, f = inner_heuristic.run()
+    print(f"result: {y_best} as {x_best} using {f.state.evaluations} evaluations")

@@ -22,5 +22,5 @@ if __name__ == '__main__':
     f.attach_logger(l)
     inner_heuristic = common.get_fresh_inner_heuristic(f)
     inner_heuristic.adaptation_function = root.evaluate
-    f_best, best, f = inner_heuristic.run()
-    print(f"result: {f_best} as {best} using {f.state.evaluations} evaluations")
+    y_best, x_best, f = inner_heuristic.run()
+    print(f"result: {y_best} as {x_best} using {f.state.evaluations} evaluations")
