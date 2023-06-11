@@ -26,8 +26,7 @@ class TwoRateEa(Heuristic):
 
     def run(self):
         epoch = 0
-        target = self.problem.optimum.y - 0.01  # float comparison is not numerically stable
-        while self.problem.state.evaluations < self.budget and self.f_best <= target:
+        while self.problem.state.evaluations < self.budget and self.f_best < int(self.problem.optimum.y):
             epoch += 1
             child_population_size = min(self.child_pop_size, (self.budget - self.problem.state.evaluations))
             current_best = None
@@ -56,11 +55,14 @@ class TwoRateEa(Heuristic):
                 self.best = current_best
                 self.f_best = f_current_best
 
-            observables = {
-                'boolean': {'best_child_is_low': best_child_is_low},
-                'numeric': {'rate': self.rate, 'dimension': self.dimension}
-            }
-            self.rate = round(max(self.adaptation_function(observables), 0.001), 3)
+            self._adapt_rate(best_child_is_low)
         return [int(self.f_best), self.best, self.problem]
+
+    def _adapt_rate(self, best_child_is_low):
+        observables = {
+            'boolean': {'best_child_is_low': best_child_is_low},
+            'numeric': {'rate': self.rate, 'dimension': self.dimension}
+        }
+        self.rate = round(max(self.adaptation_function(observables), 0.001), 3)
 
 
