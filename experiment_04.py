@@ -1,4 +1,3 @@
-import feast.tree as tree
 import common
 from feast.ge import GE
 
@@ -12,17 +11,30 @@ ge = GE(
     common.get_fresh_problem,
     common.get_fresh_inner_heuristic,
     common.parameters['OUTER_BUDGET'],
-    parent_population_size=10,
-    child_population_size=10,
+    trials_per_evaluation=common.parameters['OUTER_TRIALS'],
+    parent_population_size=5,
+    child_population_size=15,
     mutation_probability=0.1,
-    crossover_probability=0.1,
-    enforce_unique_coding_genotypes=True
+    crossover_probability=0.5,
+    genome_length=50,
+    enforce_unique_genotypes=True,
+    enforce_unique_phenotypes=True,
+    enforce_unique_coding_genotypes=True,
+    survival='plus'
 )
 ge.initialize_population()
-# ge.run()
-best_recipe = ge.get_best_recipe()
-root = tree.create(best_recipe)
-print(root.formula)
+ge.run()
+
+print("Formulas in the final population:")
+grammar = common.get_grammar()
+for i in range(ge.parent_population_size):
+    print(f"recipe: {ge.get_recipe(i)}")
+    fitness = ge.parent_population_fitness[i]
+    root = ge.get_individual(i)
+    print(f"[{fitness}]: {root.formula}")
+
+root = ge.get_individual(0)
+print(f"Best Formula: {root.formula}")
 
 f = common.get_fresh_problem()
 l = common.get_logger(EXPERIMENT_NAME, ALGORITHM_NAME)

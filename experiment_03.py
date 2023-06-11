@@ -1,7 +1,7 @@
-from feast.grammar import Grammar
 import feast.tree as tree
 import math
 import common
+import numpy as np
 
 # Logger settings
 EXPERIMENT_NAME = common.parameters['OUTPUT_DIR'] + 'experiment_03'
@@ -21,14 +21,18 @@ for i in range(common.parameters['OUTER_BUDGET']):
     print(f"  Formula: {root.formula}")
     print(f"  Static?: {'yes' if root.is_static else 'no'}")
 
-    f = common.get_fresh_problem()
-    inner_heuristic = common.get_fresh_inner_heuristic(f)
-    inner_heuristic.adaptation_function = root.evaluate
-    y_best, x_best, f = inner_heuristic.run()
-    if f.state.evaluations < lowest_evaluations:
-        lowest_evaluations = f.state.evaluations
+    performance = []
+    for i in range(common.parameters['OUTER_TRIALS']):
+        f = common.get_fresh_problem()
+        inner_heuristic = common.get_fresh_inner_heuristic(f)
+        inner_heuristic.adaptation_function = root.evaluate
+        y_best, x_best, f = inner_heuristic.run()
+        performance.append(f.state.evaluations)
+    mean = np.mean(performance)
+    if mean < lowest_evaluations:
+        lowest_evaluations = mean
         best_recipe = recipe
-    print(f"  lowest: {lowest_evaluations}, current: {f.state.evaluations}")
+    print(f"  lowest: {lowest_evaluations}, current: {mean}")
 
 # Validate on end result
 root = tree.create(best_recipe)

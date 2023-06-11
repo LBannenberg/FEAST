@@ -12,7 +12,8 @@ parameters = {
     'PROBLEM_CLASS': ProblemClass.PBO,
 
     'INNER_BUDGET': 1000,
-    'OUTER_BUDGET': 20
+    'OUTER_BUDGET': 100,
+    'OUTER_TRIALS': 5
 }
 
 parameters['CHILD_POP_SIZE'] = parameters['DIMENSION']
