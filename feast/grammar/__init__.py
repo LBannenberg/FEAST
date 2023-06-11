@@ -3,19 +3,22 @@ import random
 
 
 class Grammar:
-    def __init__(self, observable_declaration, wraparound=0):
+    def __init__(self, observable_declaration, wraparound=0, grammar_definition='feast/grammar/mixed.json'):
+        with open(grammar_definition) as f:
+            rules = json.load(f)
         self.wraparound = wraparound
-        if 'num' in observable_declaration and len(observable_declaration['num']):
-            self.productions['NUMERIC_OBSERVABLE'] = [
-                ['numeric_observable:' + name for name in observable_declaration['num']]
+        if 'numeric' in observable_declaration and len(observable_declaration['numeric']):
+            rules['NUMERIC_OBSERVABLE'] = [
+                ['numeric_observable:' + name for name in observable_declaration['numeric']]
             ]
-            self.productions['NUMERIC_EXPRESSION'].append(['NUMERIC_OBSERVABLE'])
+            rules['NUMERIC_EXPRESSION'].append(['NUMERIC_OBSERVABLE'])
 
         if 'boolean' in observable_declaration and len(observable_declaration['boolean']):
-            self.productions['BOOLEAN_OBSERVABLE'] = [
+            rules['BOOLEAN_OBSERVABLE'] = [
                 ['boolean_observable:' + name for name in observable_declaration['boolean']]
             ]
-            self.productions['BOOLEAN_EXPRESSION'].append(['BOOLEAN_OBSERVABLE'])
+            rules['BOOLEAN_EXPRESSION'].append(['BOOLEAN_OBSERVABLE'])
+        self.productions = rules
 
     def __repr__(self):
         return json.dumps(self.productions, sort_keys=False, indent=2)
@@ -53,7 +56,7 @@ class Grammar:
         sentence, _ = self._produce_from_genome(genome, starting_symbol=starting_symbol)
         return sentence
 
-    def _produce_from_genome(self, genome, starting_symbol='START', return_coding_length=False):
+    def _produce_from_genome(self, genome, starting_symbol):
         terminals = []
         non_terminals = [starting_symbol]  # use BOOLEAN_EXPRESSION or NUMERIC_EXPRESSION to force the type
         gene = 0
@@ -75,7 +78,9 @@ class Grammar:
             non_terminals, terminals = self._produce(choice, non_terminals, terminals)
             gene += 1
 
-        sentence = 'invalid' if len(non_terminals) else '|'.join(terminals)
+        sentence = '|'.join(terminals)
+        if len(non_terminals):
+            raise ValueError(f"Cannot finish derivation. So far: {sentence}")
 
         coding_length = len(genome) if wraps else gene
         return sentence, coding_length
@@ -92,50 +97,3 @@ class Grammar:
         non_terminals = new_non_terminals + non_terminals[1:]
         return non_terminals, terminals
 
-    productions = {
-        'START': [
-            ['NUMERIC_EXPRESSION'],
-            ['BOOLEAN_EXPRESSION'],
-        ],
-        'NUMERIC_EXPRESSION': [
-            ['NUMERIC'],
-            # ['NUMERIC_OBSERVABLE'],  # added during __init__ if any names are passed
-            ['NUMERIC_BINARY_EXPRESSION'],
-            ['if:numeric', 'BOOLEAN_EXPRESSION', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            ['numeric_expression:negative', 'NUMERIC_EXPRESSION']
-        ],
-        'NUMERIC': [['numeric:' + str(num)]
-                    for num in [-1, -0.5, 0, 0.1, 0.5, 1, 2, 3, 4, 5, 10, 20, 50, 100, 'uniform']
-                    ],
-        # 'NUMERIC_OBSERVABLE': [],  # added during __init__ if any names are passed
-        'NUMERIC_BINARY_EXPRESSION': [
-            ['numeric_expression:+', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            ['numeric_expression:-', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            ['numeric_expression:*', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            ['numeric_expression:/', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            # ['numeric_expression:%', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            # ['numeric_expression:^', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            ['numeric_expression:min', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            ['numeric_expression:max', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION']
-        ],
-        'BOOLEAN_EXPRESSION': [
-            ['BOOLEAN'],
-            # ['BOOLEAN_OBSERVABLE'],  # added during __init__ if any names are passed
-            ['BOOLEAN_BINARY_EXPRESSION'],
-            ['if:boolean', 'BOOLEAN_EXPRESSION', 'BOOLEAN_EXPRESSION', 'BOOLEAN_EXPRESSION'],
-            ['boolean_expression:not', 'BOOLEAN_EXPRESSION'],
-            ['boolean_expression:truthy', 'NUMERIC_EXPRESSION']
-        ],
-        'BOOLEAN': [['boolean:true'], ['boolean:false']],
-        # 'BOOLEAN_OBSERVABLE': [],  # added during __init__ if any names are passed
-        'BOOLEAN_BINARY_EXPRESSION': [
-            ['boolean_expression:and', 'BOOLEAN_EXPRESSION', 'BOOLEAN_EXPRESSION'],
-            ['boolean_expression:or', 'BOOLEAN_EXPRESSION', 'BOOLEAN_EXPRESSION'],
-            ['boolean_expression:>', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            ['boolean_expression:>=', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            ['boolean_expression:==', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            ['boolean_expression:<=', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            ['boolean_expression:<', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION'],
-            ['boolean_expression:!=', 'NUMERIC_EXPRESSION', 'NUMERIC_EXPRESSION']
-        ]
-    }
