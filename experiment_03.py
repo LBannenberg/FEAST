@@ -25,7 +25,7 @@ for i in range(common.parameters['OUTER_BUDGET']):
     for i in range(common.parameters['OUTER_TRIALS']):
         f = common.get_fresh_problem()
         inner_heuristic = common.get_fresh_inner_heuristic(f)
-        inner_heuristic.adaptation_function = root.evaluate
+        inner_heuristic.inject_function(root.evaluate)
         y_best, x_best, f = inner_heuristic.run()
         performance.append(f.state.evaluations)
     mean = np.mean(performance)
@@ -42,6 +42,6 @@ l = common.get_logger(EXPERIMENT_NAME, ALGORITHM_NAME)
 f.attach_logger(l)
 
 inner_heuristic = common.get_fresh_inner_heuristic(f)
-inner_heuristic.adaptation_function = root.evaluate
+inner_heuristic.inject_function(root.evaluate)
 y_best, x_best, f = inner_heuristic.run()
 print(f"result: {y_best} as {x_best} using {f.state.evaluations} evaluations")

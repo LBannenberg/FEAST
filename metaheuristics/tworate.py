@@ -65,4 +65,9 @@ class TwoRateEa(Heuristic):
         }
         self.rate = round(max(self.adaptation_function(observables), 0.001), 3)
 
+    def inject_function(self, function):
+        self.adaptation_function = function
 
+    @staticmethod
+    def _adaptation_function(observables):
+        return observables['numeric']['rate']

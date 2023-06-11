@@ -19,3 +19,7 @@ class Heuristic(ABC):
     @abstractmethod
     def run(self):
         pass
+
+    @abstractmethod
+    def inject_function(self, function):
+        pass

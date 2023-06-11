@@ -28,7 +28,8 @@ class GE:
                  enforce_unique_coding_genotypes=False,
                  enforce_unique_phenotypes=False,
                  survival: str = 'comma',
-                 random_seed=None
+                 random_seed=None,
+                 must_observe=None
                  ):
         self.grammar = grammar
         self.starting_symbol: str = starting_symbol
@@ -46,6 +47,7 @@ class GE:
         self.enforce_unique_coding_genotypes = enforce_unique_coding_genotypes
         self.enforce_unique_phenotypes = enforce_unique_phenotypes
         self.survival = survival
+        self.must_observe = must_observe
         if random_seed is not None:
             random.seed(random_seed)
 
@@ -108,7 +110,7 @@ class GE:
         for i in range(self.trials_per_evaluation):
             f = self.get_fresh_problem()
             inner_heuristic = self.get_fresh_inner_heuristic(f)
-            inner_heuristic.adaptation_function = root.evaluate
+            inner_heuristic.inject_function(root.evaluate)
             y_best, x_best, f = inner_heuristic.run()
             performance.append(f.state.evaluations)
         self.budget_used += 1
@@ -128,6 +130,11 @@ class GE:
         except AttributeError as e:
             print(f"AttributeError: {recipe}")
             return False
+
+        if self.must_observe and type(self.must_observe) is list:
+            for terminal in self.must_observe:
+                if terminal not in recipe:
+                    return False
 
         if not strict:
             return True
