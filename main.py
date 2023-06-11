@@ -19,7 +19,7 @@ if __name__ == '__main__':
         tries += 1
         genome.initialize_randomly()
         sentence = grammar.produce_from_genome(genome.genotype,
-                                               initial_symbol='NUMERIC_EXPRESSION',
+                                               starting_symbol='NUMERIC_EXPRESSION',
                                                wraparound=wraparound)
         sentence = grammar.produce_random_sentence()
         invalid = sentence == 'invalid'

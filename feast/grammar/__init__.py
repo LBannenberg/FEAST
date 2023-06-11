@@ -19,9 +19,9 @@ class Grammar:
     def __repr__(self):
         return json.dumps(self.productions, sort_keys=False, indent=2)
 
-    def produce_random_sentence(self, soft_limit=10, initial_symbol='START'):
+    def produce_random_sentence(self, soft_limit=10, starting_symbol='START'):
         terminals = []
-        non_terminals = [initial_symbol]  # use BOOLEAN_EXPRESSION or NUMERIC_EXPRESSION to force the type
+        non_terminals = [starting_symbol]  # use BOOLEAN_EXPRESSION or NUMERIC_EXPRESSION to force the type
 
         while len(non_terminals):
             symbol = non_terminals[0]
@@ -44,9 +44,9 @@ class Grammar:
             non_terminals, terminals = self._produce(choice, non_terminals, terminals)
         return '|'.join(terminals)
 
-    def produce_from_genome(self, genome, wraparound=0, initial_symbol='START'):
+    def produce_from_genome(self, genome, wraparound=0, starting_symbol='START', return_coding_length=False):
         terminals = []
-        non_terminals = [initial_symbol]  # use BOOLEAN_EXPRESSION or NUMERIC_EXPRESSION to force the type
+        non_terminals = [starting_symbol]  # use BOOLEAN_EXPRESSION or NUMERIC_EXPRESSION to force the type
         gene = 0
         wraps = 0
 
@@ -66,11 +66,14 @@ class Grammar:
             non_terminals, terminals = self._produce(choice, non_terminals, terminals)
             gene += 1
 
-        if len(non_terminals):
-            return 'invalid'
+        sentence = 'invalid' if len(non_terminals) else '|'.join(terminals)
+
+        if return_coding_length:
+            coding_length = len(genome) if wraps else gene
+            return sentence, coding_length
 
         # complete valid derivation
-        return '|'.join(terminals)
+        return sentence
 
     def _produce(self, choice, non_terminals, terminals):
         new_terminals = []

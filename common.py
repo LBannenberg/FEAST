@@ -1,6 +1,7 @@
 from ioh import ProblemClass, get_problem, logger
 from metaheuristics.tworate import TwoRateEa
 import os
+from feast.grammar import Grammar
 
 parameters = {
     'OUTPUT_DIR': 'experiment_output/',
@@ -43,3 +44,8 @@ def get_logger(experiment_name, algorithm_name):
         store_positions=True  # store x-variables in the logged files
     )
     return l
+
+
+def get_grammar():
+    observables_declaration = {'boolean': ['best_child_is_low'], 'numeric': ['rate', 'dimension']}
+    return Grammar(observable_declaration=observables_declaration)
