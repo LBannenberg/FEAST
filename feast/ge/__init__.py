@@ -27,7 +27,8 @@ class GE:
                  enforce_unique_genotypes=False,
                  enforce_unique_coding_genotypes=False,
                  enforce_unique_phenotypes=False,
-                 survival: str = 'comma'
+                 survival: str = 'comma',
+                 random_seed=None
                  ):
         self.grammar = grammar
         self.starting_symbol: str = starting_symbol
@@ -45,6 +46,8 @@ class GE:
         self.enforce_unique_coding_genotypes = enforce_unique_coding_genotypes
         self.enforce_unique_phenotypes = enforce_unique_phenotypes
         self.survival = survival
+        if random_seed is not None:
+            random.seed(random_seed)
 
     def initialize_population(self):
         # Generate a parent population, subject to uniqueness constraints
@@ -62,7 +65,7 @@ class GE:
     def run(self):
         print(f"RUN")
         generation = 0
-        while (self.budget_used + self.child_population_size) < self.outer_budget:
+        while (self.budget_used + self.child_population_size) <= self.outer_budget:
             generation += 1
             print(f"  generation {generation} (budget: {self.budget_used}/{self.outer_budget}")
             print(self.parent_population_fitness)
@@ -112,9 +115,11 @@ class GE:
         return np.mean(performance)
 
     def _validate(self, genome, strict=True):
-        recipe = self._genome_to_recipe(genome)
-        if recipe == 'invalid':
+        try:
+            recipe = self._genome_to_recipe(genome)
+        except ValueError as e:
             return False
+
         try:
             root = self._recipe_to_root(recipe)
         except ValueError as e:
@@ -127,18 +132,18 @@ class GE:
         if not strict:
             return True
 
-        if self.enforce_unique_genotypes:
-            signature = '.'.join([str(i) for i in genome])
-            if signature in self.genotypes:
-                return False
-            self.genotypes.add(signature)
-
         if self.enforce_unique_coding_genotypes:
             coding_length = self._get_coding_length(genome)
             signature = '.'.join([str(i) for i in genome[:coding_length]])
             if signature in self.coding_genotypes:
                 return False
             self.coding_genotypes.add(signature)
+
+        if self.enforce_unique_genotypes:
+            signature = '.'.join([str(i) for i in genome])
+            if signature in self.genotypes:
+                return False
+            self.genotypes.add(signature)
 
         if self.enforce_unique_phenotypes:
             if recipe in self.phenotypes:
