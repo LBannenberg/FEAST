@@ -4,11 +4,10 @@ import math
 
 
 class TwoRateEa(Heuristic):
-    child_pop = []
-    rate = 2
-
     def __init__(self, problem, dimension: int, budget: int, child_pop_size: int):
         super().__init__(problem, dimension, budget)
+        self.child_pop = []
+        self.rate = 2
         self.child_pop_size = child_pop_size
         self.initialize()
 

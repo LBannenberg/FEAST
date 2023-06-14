@@ -4,13 +4,6 @@ import numpy as np
 
 
 class GE:
-    parent_population = []
-    parent_population_fitness = []
-    budget_used = 0
-    genotypes = set()
-    coding_genotypes = set()
-    phenotypes = set()
-
     def __init__(self,
                  grammar,
                  starting_symbol: str,
@@ -31,6 +24,13 @@ class GE:
                  random_seed=None,
                  must_observe=None
                  ):
+        self.parent_population = []
+        self.parent_population_fitness = []
+        self.budget_used = 0
+        self.genotypes = set()
+        self.coding_genotypes = set()
+        self.phenotypes = set()
+
         self.grammar = grammar
         self.starting_symbol: str = starting_symbol
         self.get_fresh_problem = get_fresh_problem
