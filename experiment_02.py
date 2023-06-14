@@ -2,7 +2,7 @@ import feast.tree as tree
 import common
 
 # Logger settings
-EXPERIMENT_NAME = common.parameters['OUTPUT_DIR'] + 'experiment_01'
+EXPERIMENT_NAME = common.parameters['OUTPUT_DIR'] + 'experiment_02'
 ALGORITHM_NAME = 'fixed_two-rate'
 
 sentence = 'numeric_observable:rate'
