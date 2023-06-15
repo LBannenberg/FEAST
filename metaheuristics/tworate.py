@@ -14,7 +14,6 @@ class TwoRateEa(Heuristic):
     def initialize(self):
         # generate one individual
         self.best = [random.randint(0, 1) for i in range(self.dimension)]
-        self.problem(self.best)
         self.f_best = self.problem(self.best)
 
     def mutation(self, probability_per_bit):
