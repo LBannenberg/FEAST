@@ -8,12 +8,12 @@ parameters = {
 
     'PROBLEM_TYPE': 1,  # OneMax,
     'INSTANCE_ID': 1,
-    'DIMENSION': 16,
+    'DIMENSION': 10,
     'PROBLEM_CLASS': ProblemClass.PBO,
 
-    'INNER_BUDGET': 1000,
-    'OUTER_BUDGET': 100,
-    'OUTER_TRIALS': 5
+    'INNER_BUDGET': 100,
+    'OUTER_BUDGET': 40,
+    'OUTER_TRIALS': 3
 }
 
 parameters['CHILD_POP_SIZE'] = parameters['DIMENSION']
@@ -31,7 +31,7 @@ def get_fresh_problem():
 def get_fresh_inner_heuristic(f):
     return TwoRateEa(
         problem=f,
-        dimension=16,
+        dimension=parameters['DIMENSION'],
         budget=1000,
         child_pop_size=16
     )
