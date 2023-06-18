@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import random
+from feast.grammar import Grammar
 
 
 class HyperHeuristic(ABC):
     def __init__(self,
-                 grammar,
+                 grammar: Grammar,
                  starting_symbol: str,
                  get_fresh_problem,
                  get_fresh_inner_heuristic,
