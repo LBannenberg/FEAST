@@ -7,10 +7,6 @@ EXPERIMENT_NAME = common.parameters['OUTPUT_DIR'] + 'experiment_05'
 ALGORITHM_NAME = 'topiary'
 
 
-grammar = Grammar(
-    observable_declaration={},
-    grammar_definition='feast/grammar/mixed2.json'
-)
 topiary = Topiary(
     grammar=common.get_grammar(),
     starting_symbol='NUM',
@@ -24,23 +20,23 @@ topiary = Topiary(
     survival='plus',
     # must_observe=['numeric_observable:rate']
 )
-# topiary.initialize_population()
-# topiary.run()
-#
-# print("Formulas in the final population:")
-# for i in range(topiary.parent_population_size):
-#     fitness = topiary.parent_population_fitness[i]
-#     root = topiary.parent_population[i]
-#     print(f"[{fitness}]: {root.formula}")
-#
-# root = topiary.parent_population[0]
-# print(f"Best Formula: {root.formula}")
-#
-# f = common.get_fresh_problem()
-# l = common.get_logger(EXPERIMENT_NAME, ALGORITHM_NAME)
-# f.attach_logger(l)
-#
-# inner_heuristic = common.get_fresh_inner_heuristic(f)
-# inner_heuristic.inject_function(root.evaluate)
-# y_best, x_best, f = inner_heuristic.run()
-# print(f"result: {y_best} as {x_best} using {f.state.evaluations} evaluations")
+topiary.initialize_population()
+topiary.run()
+
+print("Formulas in the final population:")
+for i in range(topiary.parent_population_size):
+    fitness = topiary.parent_population_fitness[i]
+    root = topiary.parent_population[i]
+    print(f"[{fitness}]: {root.formula}")
+
+root = topiary.parent_population[0]
+print(f"Best Formula: {root.formula}")
+
+f = common.get_fresh_problem()
+l = common.get_logger(EXPERIMENT_NAME, ALGORITHM_NAME)
+f.attach_logger(l)
+
+inner_heuristic = common.get_fresh_inner_heuristic(f)
+inner_heuristic.inject_function(root.evaluate)
+y_best, x_best, f = inner_heuristic.run()
+print(f"result: {y_best} as {x_best} using {f.state.evaluations} evaluations")

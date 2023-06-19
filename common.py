@@ -8,11 +8,11 @@ parameters = {
 
     'PROBLEM_TYPE': 1,  # OneMax,
     'INSTANCE_ID': 1,
-    'DIMENSION': 10,
+    'DIMENSION': 16,
     'PROBLEM_CLASS': ProblemClass.PBO,
 
-    'INNER_BUDGET': 100,
-    'OUTER_BUDGET': 40,
+    'INNER_BUDGET': 1000,
+    'OUTER_BUDGET': 100,
     'OUTER_TRIALS': 3
 }
 
