@@ -4,9 +4,6 @@
       "NUM_CONSTANT"
     ],
     [
-      "NUM_OBSERVABLE"
-    ],
-    [
       "NUM_RANDOM"
     ],
     [
@@ -31,9 +28,6 @@
   "BOOL": [
     [
       "BOOL_CONSTANT"
-    ],
-    [
-      "BOOL_OBSERVABLE"
     ],
     [
       "BOOL_RANDOM"

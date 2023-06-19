@@ -9,13 +9,13 @@ class Grammar:
         self.wraparound = wraparound
         if 'numeric' in observable_declaration and len(observable_declaration['numeric']):
             rules['NUM_OBSERVABLE'] = [
-                ['numeric_observable:' + name for name in observable_declaration['numeric']]
+                ['numeric_observable:' + name] for name in observable_declaration['numeric']
             ]
             rules['NUM'].append(['NUM_OBSERVABLE'])
 
         if 'boolean' in observable_declaration and len(observable_declaration['boolean']):
             rules['BOOL_OBSERVABLE'] = [
-                ['boolean_observable:' + name for name in observable_declaration['boolean']]
+                ['boolean_observable:' + name] for name in observable_declaration['boolean']
             ]
             rules['BOOL'].append(['BOOL_OBSERVABLE'])
         self.productions = rules
@@ -38,10 +38,10 @@ class Grammar:
                 limit_triggered = True
 
             # If limited, bound the size of the tree by only making leaves
-            if limit_triggered and symbol == 'NUMERIC_EXPRESSION':
-                symbol = 'NUMERIC'
-            if limit_triggered and symbol == 'BOOLEAN_EXPRESSION':
-                symbol = 'BOOLEAN'
+            if limit_triggered and symbol in ['NUM', 'NUM_BINARY_OPERATOR', 'NUM_COND']:
+                symbol = 'NUM_CONSTANT'
+            if limit_triggered and symbol == ['BOOL', 'BOOL_BINARY_OPERATOR', 'BOOL_COND']:
+                symbol = 'BOOL_CONSTANT'
 
             options = self.productions[symbol]
             choice = options[random.randint(0, len(options) - 1)]
@@ -110,3 +110,25 @@ class Grammar:
     @property
     def non_terminals(self):
         return list(self.productions.keys())
+
+    def get_alternative_for_terminal(self, terminal):
+        flag = False
+        patience = 5
+        for non_terminal, rules in self.productions.items():
+            if len(rules) == 1:  # there are no alternatives here
+                continue
+
+            for rule in rules:  # this production has a rule to generate this terminal
+                if len(rule) == 1 and terminal in rule:
+                    flag = True
+
+            # find a different rule to generate a different
+            if flag:
+                new_terminal = terminal
+                while new_terminal == terminal and patience:
+                    patience -= 1
+                    rule = random.sample(rules, 1)[0]
+                    new_terminal = rule[0]
+                return new_terminal
+
+        return None  # could not find a new terminal
