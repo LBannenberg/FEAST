@@ -1,26 +1,46 @@
-import feast.tree as tree
 import common
-import json
+from feast.topiary import Topiary
+from feast.grammar import Grammar
 
 # Logger settings
 EXPERIMENT_NAME = common.parameters['OUTPUT_DIR'] + 'experiment_05'
-ALGORITHM_NAME = 'fixed_two-rate'
+ALGORITHM_NAME = 'topiary'
 
-sentence = 'numeric_expression:negative|numeric_expression:+|numeric_observable:rate|numeric_expression:*|numeric:1|numeric:2'
-root = tree.create(sentence)
 
+grammar = Grammar(
+    observable_declaration={},
+    grammar_definition='feast/grammar/mixed2.json'
+)
+topiary = Topiary(
+    grammar=common.get_grammar(),
+    starting_symbol='NUM',
+    get_fresh_problem=common.get_fresh_problem,
+    get_fresh_inner_heuristic=common.get_fresh_inner_heuristic,
+    outer_budget=common.parameters['OUTER_BUDGET'],
+    trials_per_evaluation=common.parameters['OUTER_TRIALS'],
+    parent_population_size=10,
+    child_population_size=15,
+    # enforce_unique_phenotypes=True,
+    survival='plus',
+    # must_observe=['numeric_observable:rate']
+)
+# topiary.initialize_population()
+# topiary.run()
+#
+# print("Formulas in the final population:")
+# for i in range(topiary.parent_population_size):
+#     fitness = topiary.parent_population_fitness[i]
+#     root = topiary.parent_population[i]
+#     print(f"[{fitness}]: {root.formula}")
+#
+# root = topiary.parent_population[0]
+# print(f"Best Formula: {root.formula}")
+#
 # f = common.get_fresh_problem()
 # l = common.get_logger(EXPERIMENT_NAME, ALGORITHM_NAME)
 # f.attach_logger(l)
+#
 # inner_heuristic = common.get_fresh_inner_heuristic(f)
 # inner_heuristic.inject_function(root.evaluate)
 # y_best, x_best, f = inner_heuristic.run()
 # print(f"result: {y_best} as {x_best} using {f.state.evaluations} evaluations")
-
-
-# print(json.dumps(root.collect_index(), sort_keys=True, indent=4))
-print(root.serialize())
-root.alter_node_value('0.0', '-')
-print(root.serialize())
-root.graft_new_subtree('0.0.0', 'numeric_expression:*|numeric:3|numeric:5')
-print(root.serialize())

@@ -1,104 +1,148 @@
 {
-  "START": [
+  "NUM": [
     [
-      "NUMERIC_EXPRESSION"
+      "NUM_CONSTANT"
     ],
     [
-      "BOOLEAN_EXPRESSION"
+      "NUM_OBSERVABLE"
+    ],
+    [
+      "NUM_RANDOM"
+    ],
+    [
+      "NUM_UNARY_OPERATOR",
+      "NUM"
+    ],
+    [
+      "NUM_BINARY_OPERATOR",
+      "NUM",
+      "NUM"
+    ],
+    [
+      "NUM_COND",
+      "BOOL",
+      "NUM",
+      "NUM"
     ]
   ],
-  "NUMERIC_EXPRESSION": [
+  "NUM_COND": [
+    ["numeric_branch:if"]
+  ],
+  "BOOL": [
     [
-      "NUMERIC"
+      "BOOL_CONSTANT"
     ],
     [
-      "NUMERIC_BINARY_EXPRESSION"
+      "BOOL_OBSERVABLE"
     ],
     [
-      "if:numeric",
-      "BOOLEAN_EXPRESSION",
-      "NUMERIC_EXPRESSION",
-      "NUMERIC_EXPRESSION"
+      "BOOL_RANDOM"
     ],
     [
-      "numeric_expression:negative",
-      "NUMERIC_EXPRESSION"
+      "BOOL_UNARY_OPERATOR",
+      "BOOL"
+    ],
+    [
+      "BOOL_UNARY_OPERATOR_NUM",
+      "NUM"
+    ],
+    [
+      "BOOL_BINARY_OPERATOR",
+      "BOOL",
+      "BOOL"
+    ],
+    [
+      "BOOL_BINARY_OPERATOR_NUM",
+      "NUM",
+      "NUM"
+    ],
+    [
+      "BOOL_COND",
+      "BOOL",
+      "BOOL",
+      "BOOL"
     ]
   ],
-  "NUMERIC": [
+  "BOOL_COND": [
     [
-      "numeric:-1",
-      "numeric:-0.5",
-      "numeric:0",
-      "numeric:0.1",
-      "numeric:0.5",
-      "numeric:1",
-      "numeric:2",
-      "numeric:3",
-      "numeric:4",
-      "numeric:5",
-      "numeric:10",
-      "numeric:20",
-      "numeric:50",
-      "numeric:100",
-      "numeric:uniform"
+      "boolean_branch:if"
     ]
   ],
-  "NUMERIC_BINARY_EXPRESSION": [
+  "NUM_CONSTANT": [
     [
-      "numeric_expression:+",
-      "NUMERIC_EXPRESSION",
-      "NUMERIC_EXPRESSION"
+      "numeric:-1"
     ],
     [
-      "numeric_expression:-",
-      "NUMERIC_EXPRESSION",
-      "NUMERIC_EXPRESSION"
+      "numeric:-0.5"
     ],
     [
-      "numeric_expression:*",
-      "NUMERIC_EXPRESSION",
-      "NUMERIC_EXPRESSION"
+      "numeric:0"
     ],
     [
-      "numeric_expression:/",
-      "NUMERIC_EXPRESSION",
-      "NUMERIC_EXPRESSION"
+      "numeric:0.1"
     ],
     [
-      "numeric_expression:min",
-      "NUMERIC_EXPRESSION",
-      "NUMERIC_EXPRESSION"
+      "numeric:0.5"
     ],
     [
-      "numeric_expression:max",
-      "NUMERIC_EXPRESSION",
-      "NUMERIC_EXPRESSION"
+      "numeric:1"
+    ],
+    [
+      "numeric:2"
+    ],
+    [
+      "numeric:3"
+    ],
+    [
+      "numeric:4"
+    ],
+    [
+      "numeric:5"
+    ],
+    [
+      "numeric:10"
+    ],
+    [
+      "numeric:20"
+    ],
+    [
+      "numeric:50"
+    ],
+    [
+      "numeric:100"
     ]
   ],
-  "BOOLEAN_EXPRESSION": [
+  "NUM_RANDOM": [
     [
-      "BOOLEAN"
-    ],
-    [
-      "BOOLEAN_BINARY_EXPRESSION"
-    ],
-    [
-      "if:boolean",
-      "BOOLEAN_EXPRESSION",
-      "BOOLEAN_EXPRESSION",
-      "BOOLEAN_EXPRESSION"
-    ],
-    [
-      "boolean_expression:not",
-      "BOOLEAN_EXPRESSION"
-    ],
-    [
-      "boolean_expression:truthy",
-      "NUMERIC_EXPRESSION"
+      "numeric_random:uniform"
     ]
   ],
-  "BOOLEAN": [
+  "NUM_UNARY_OPERATOR": [
+    [
+      "numeric_expression:negative"
+    ]
+  ],
+  "NUM_BINARY_OPERATOR": [
+    [
+      "numeric_expression:+"
+    ],
+    [
+      "numeric_expression:-"
+    ],
+    [
+      "numeric_expression:*"
+    ],
+    [
+      "numeric_expression:/"
+    ],
+    [
+      "numeric_expression:min"
+    ],
+    [
+      "numeric_expression:max"
+    ]
+  ],
+  "BOOL_CONSTANT": [
     [
       "boolean:true"
     ],
@@ -106,46 +150,47 @@
       "boolean:false"
     ]
   ],
-  "BOOLEAN_BINARY_EXPRESSION": [
+  "BOOL_RANDOM": [
     [
-      "boolean_expression:and",
-      "BOOLEAN_EXPRESSION",
-      "BOOLEAN_EXPRESSION"
+      "boolean_random:uniform"
+    ]
+  ],
+  "BOOL_UNARY_OPERATOR": [
+    [
+      "boolean_expression:not"
+    ]
+  ],
+  "BOOL_UNARY_OPERATOR_NUM": [
+    [
+      "boolean_expression:truthy"
+    ]
+  ],
+  "BOOL_BINARY_OPERATOR": [
+    [
+      "boolean_expression:and"
     ],
     [
-      "boolean_expression:or",
-      "BOOLEAN_EXPRESSION",
-      "BOOLEAN_EXPRESSION"
+      "boolean_expression:or"
+    ]
+  ],
+  "BOOL_BINARY_OPERATOR_NUM": [
+    [
+      "boolean_expression:>"
     ],
     [
-      "boolean_expression:>",
-      "NUMERIC_EXPRESSION",
-      "NUMERIC_EXPRESSION"
+      "boolean_expression:>="
     ],
     [
-      "boolean_expression:>=",
-      "NUMERIC_EXPRESSION",
-      "NUMERIC_EXPRESSION"
+      "boolean_expression:=="
     ],
     [
-      "boolean_expression:==",
-      "NUMERIC_EXPRESSION",
-      "NUMERIC_EXPRESSION"
+      "boolean_expression:<="
     ],
     [
-      "boolean_expression:<=",
-      "NUMERIC_EXPRESSION",
-      "NUMERIC_EXPRESSION"
+      "boolean_expression:<"
     ],
     [
-      "boolean_expression:<",
-      "NUMERIC_EXPRESSION",
-      "NUMERIC_EXPRESSION"
-    ],
-    [
-      "boolean_expression:!=",
-      "NUMERIC_EXPRESSION",
-      "NUMERIC_EXPRESSION"
+      "boolean_expression:!="
     ]
   ]
 }

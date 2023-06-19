@@ -8,16 +8,16 @@ class Grammar:
             rules = json.load(f)
         self.wraparound = wraparound
         if 'numeric' in observable_declaration and len(observable_declaration['numeric']):
-            rules['NUMERIC_OBSERVABLE'] = [
+            rules['NUM_OBSERVABLE'] = [
                 ['numeric_observable:' + name for name in observable_declaration['numeric']]
             ]
-            rules['NUMERIC_EXPRESSION'].append(['NUMERIC_OBSERVABLE'])
+            rules['NUM'].append(['NUM_OBSERVABLE'])
 
         if 'boolean' in observable_declaration and len(observable_declaration['boolean']):
-            rules['BOOLEAN_OBSERVABLE'] = [
+            rules['BOOL_OBSERVABLE'] = [
                 ['boolean_observable:' + name for name in observable_declaration['boolean']]
             ]
-            rules['BOOLEAN_EXPRESSION'].append(['BOOLEAN_OBSERVABLE'])
+            rules['BOOL'].append(['BOOL_OBSERVABLE'])
         self.productions = rules
 
     def __repr__(self):
@@ -97,3 +97,16 @@ class Grammar:
         non_terminals = new_non_terminals + non_terminals[1:]
         return non_terminals, terminals
 
+    @property
+    def terminals(self):
+        terminals = set()
+        for _, productions in self.productions.items():
+            for production in productions:
+                for symbol in production:
+                    if symbol not in self.non_terminals:
+                        terminals.add(symbol)
+        return list(terminals)
+
+    @property
+    def non_terminals(self):
+        return list(self.productions.keys())

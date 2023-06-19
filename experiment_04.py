@@ -7,7 +7,7 @@ ALGORITHM_NAME = 'classic-GE'
 
 ge = GE(
     common.get_grammar(),
-    'NUMERIC_EXPRESSION',
+    'NUM',
     common.get_fresh_problem,
     common.get_fresh_inner_heuristic,
     common.parameters['OUTER_BUDGET'],

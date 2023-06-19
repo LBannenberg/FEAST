@@ -29,9 +29,12 @@ class Tree(ABC):
         if node_type == 'numeric_observable':
             from feast.tree.numeric import NumericObservable
             node = NumericObservable(node_value)
-        if node_type == 'if':
-            from feast.tree.boolean import IfThenElse
-            node = IfThenElse(node_value)
+        if node_type == 'numeric_random':
+            from feast.tree.numeric import NumericRandom
+            node = NumericRandom(node_value)
+        if node_type == 'numeric_branch':
+            from feast.tree.numeric import NumericIfThenElse
+            node = NumericIfThenElse(node_value)
         if node_type == 'boolean':
             from feast.tree.boolean import Boolean
             node = Boolean(node_value)
@@ -41,6 +44,13 @@ class Tree(ABC):
         if node_type == 'boolean_observable':
             from feast.tree.boolean import BooleanObservable
             node = BooleanObservable(node_value)
+        if node_type == 'boolean_random':
+            from feast.tree.boolean import BooleanRandom
+            node = BooleanRandom(node_value)
+        if node_type == 'boolean_branch':
+            from feast.tree.boolean import BooleanIfThenElse
+            node = BooleanIfThenElse(node_value)
+
 
         if node is None:
             raise ValueError(f"Cannot create node from ingredient {node_type}:{node_value}")

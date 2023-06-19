@@ -2,6 +2,31 @@ from feast.tree.base import Tree
 import random
 
 
+class NumericIfThenElse(Tree):
+    node_type = 'numeric_branch'
+
+    def _continue_deserialization(self, recipe):
+        child, recipe = self.create(recipe)
+        self.children.append(child)
+
+        child, recipe = self.create(recipe)
+        self.children.append(child)
+
+        child, recipe = self.create(recipe)
+        self.children.append(child)
+
+        return recipe
+
+    def evaluate(self, observables=None) -> float:
+        if self.children[0].evaluate(observables):
+            return self.children[1].evaluate(observables)
+        return self.children[2].evaluate(observables)
+
+    @property
+    def formula(self) -> str:
+        return f"IF({self.children[0].formula} ; {self.children[1].formula} ; {self.children[2].formula})"
+
+
 class Numeric(Tree):
     node_type = 'numeric'
 
@@ -9,8 +34,6 @@ class Numeric(Tree):
         return recipe
 
     def evaluate(self, observables=None) -> float:
-        if self.value == 'uniform':
-            return random.uniform(0, 1)
         return float(self.value)
 
     @property
@@ -19,8 +42,6 @@ class Numeric(Tree):
 
     @property
     def is_static(self) -> bool:
-        if self.value == 'uniform':
-            return False
         return True
 
 
@@ -102,6 +123,25 @@ class NumericObservable(Tree):
 
     def evaluate(self, observables=None) -> float:
         return float(observables['numeric'][self.value])
+
+    @property
+    def formula(self) -> str:
+        return self.value
+
+    @property
+    def is_static(self) -> bool:
+        return False
+
+
+class NumericRandom(Tree):
+    node_type = 'numeric_random'
+
+    def _continue_deserialization(self, recipe):
+        return recipe
+
+    def evaluate(self, observables=None) -> float:
+        if self.value == 'uniform':
+            return random.uniform(0, 1)
 
     @property
     def formula(self) -> str:

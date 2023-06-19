@@ -1,9 +1,10 @@
+import random
+
 from feast.tree.base import Tree
-from typing import Union
 
 
-class IfThenElse(Tree):
-    node_type = 'if'
+class BooleanIfThenElse(Tree):
+    node_type = 'boolean_branch'
 
     def _continue_deserialization(self, recipe):
         child, recipe = self.create(recipe)
@@ -17,7 +18,7 @@ class IfThenElse(Tree):
 
         return recipe
 
-    def evaluate(self, observables=None) -> Union[bool, float]:
+    def evaluate(self, observables=None) -> bool:
         if self.children[0].evaluate(observables):
             return self.children[1].evaluate(observables)
         return self.children[2].evaluate(observables)
@@ -97,6 +98,25 @@ class BooleanObservable(Tree):
 
     def evaluate(self, observables=None) -> bool:
         return observables['boolean'][self.value]
+
+    @property
+    def formula(self) -> str:
+        return self.value
+
+    @property
+    def is_static(self) -> bool:
+        return False
+
+
+class BooleanRandom(Tree):
+    node_type = 'boolean_random'
+
+    def _continue_deserialization(self, recipe):
+        return recipe
+
+    def evaluate(self, observables=None) -> bool:
+        if self.value == 'uniform':
+            return bool(random.randint(0, 1))
 
     @property
     def formula(self) -> str:

@@ -14,7 +14,7 @@ best_recipe = None
 
 # Train
 for i in range(common.parameters['OUTER_BUDGET']):
-    recipe = grammar.produce_random_sentence(soft_limit=5, starting_symbol='NUMERIC_EXPRESSION')
+    recipe = grammar.produce_random_sentence(soft_limit=5, starting_symbol='NUM')
     root = tree.create(recipe)
 
     print(f"Generation {i}")

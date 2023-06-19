@@ -6,9 +6,9 @@ EXPERIMENT_NAME = common.parameters['OUTPUT_DIR'] + 'experiment_01'
 ALGORITHM_NAME = 'original_two-rate'
 
 sentence = '|'.join([
-    'if:numeric|boolean_expression:<=',
-    'numeric:uniform',
-    'if:numeric|boolean_observable:best_child_is_low|numeric:0.75|numeric:0.25',
+    'numeric_branch:if|boolean_expression:<=',
+    'numeric_random:uniform',
+    'numeric_branch:if|boolean_observable:best_child_is_low|numeric:0.75|numeric:0.25',
     'numeric_expression:max', 'numeric_expression:/', 'numeric_observable:rate', 'numeric:2', 'numeric:2',
     'numeric_expression:min', 'numeric_expression:*', 'numeric_observable:rate', 'numeric:2', 'numeric_expression:/',
     'numeric_observable:dimension', 'numeric:4',
