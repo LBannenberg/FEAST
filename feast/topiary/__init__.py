@@ -4,6 +4,7 @@ import numpy as np
 from feast import HyperHeuristic
 import json
 from feast.grammar import Grammar
+from typing import Union
 
 
 class Topiary(HyperHeuristic):
@@ -71,17 +72,23 @@ class Topiary(HyperHeuristic):
     def _generate_child(self) -> tree.Tree:
         parent1, parent2 = random.sample(self.parent_population, 2)
         child = tree.create(parent1.serialize())
-        roll = random.randint(0, 3)
-        if roll == 0:
-            return self._crossover(child, parent2)
-        if roll == 1:
-            return self._switch_leaf(child)
-        if roll == 2:
-            return self._expand_leaf(child)
-        if roll == 3:
-            return self._trim_subtree(child)
-        if roll == 4:
-            return self._change_internal_node(child)
+        success = False
+        while success is False:
+            roll = random.randint(0, 1)
+            # if roll == 0:
+            #     return self._crossover(child, parent2)
+            if roll == 1:
+                success = self._switch_leaf(child)
+                if not success:
+                    print(child)
+                    exit(1)
+            # if roll == 2:
+            #     return self._expand_leaf(child)
+            # if roll == 3:
+            #     return self._trim_subtree(child)
+            # if roll == 4:
+            #     return self._change_internal_node(child)
+        return child
 
     def _crossover(self, child, parent2) -> tree.Tree:
         return child
@@ -89,14 +96,28 @@ class Topiary(HyperHeuristic):
     def _expand_leaf(self, child) -> tree.Tree:
         return child
 
-    def _switch_leaf(self, child) -> tree.Tree:
+    def _switch_leaf(self, child) -> bool:
         index = child.collect_index()
         leaves = self._filter_leaves(index)
-        chosen_node_index = random.sample(leaves.keys(), 1)
-        chosen_node = leaves[chosen_node_index]
-        alternative_value = self.grammar.get_alternative_for_terminal(chosen_node['recipe'])
-        child.alter_node_value(chosen_node_index, alternative_value)
-        return child
+        if len(leaves) == 1:
+            return child
+
+        chosen_node_index = None
+        alternative_terminal = None
+        patience = 10
+        while alternative_terminal is None and patience:
+            patience -= 1
+            chosen_node_index = random.sample(leaves.keys(), k=1)[0]
+            chosen_node = leaves[chosen_node_index]
+            alternative_terminal = self.grammar.get_alternative_for_terminal(chosen_node['recipe'])
+
+        if not patience:
+            return False
+
+        new_value = alternative_terminal.split(':')[1]
+        child.alter_node_value(chosen_node_index, new_value)
+
+        return True
 
     def _trim_subtree(self, child):
         return child
