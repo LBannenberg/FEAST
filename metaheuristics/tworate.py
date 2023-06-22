@@ -61,7 +61,7 @@ class TwoRateEa(Heuristic):
             'boolean': {'best_child_is_low': best_child_is_low},
             'numeric': {'rate': self.rate, 'dimension': self.dimension}
         }
-        self.rate = round(max(self.adaptation_function(observables), 0.001), 3)
+        self.rate = round(min(max(self.adaptation_function(observables), 0.001), 3), 10**10)
 
     def inject_function(self, function):
         self.adaptation_function = function
