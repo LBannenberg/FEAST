@@ -1,10 +1,9 @@
 import random
 import feast.tree as tree
-import numpy as np
 from feast import HyperHeuristic
 import json
 from feast.grammar import Grammar
-from typing import Union
+from typing import Union, Tuple
 
 
 class Topiary(HyperHeuristic):
@@ -44,7 +43,8 @@ class Topiary(HyperHeuristic):
         # TODO: make this more generic, so it can be moved into the abstract class
         print("Initializing population...")
         while len(self.parent_population) < self.parent_population_size:
-            parent = tree.create(self.grammar.produce_random_sentence(starting_symbol=self.starting_symbol, soft_limit=5))
+            parent = tree.create(
+                self.grammar.produce_random_sentence(starting_symbol=self.starting_symbol, soft_limit=5))
             if self._validate(parent):
                 self.parent_population.append(parent)
                 self.unique_phenotypes.add(parent.serialize())
@@ -73,59 +73,112 @@ class Topiary(HyperHeuristic):
         parent1, parent2 = random.sample(self.parent_population, 2)
         child = tree.create(parent1.serialize())
         success = False
-        while success is False:
-            roll = random.randint(0, 1)
-            # if roll == 0:
-            #     return self._crossover(child, parent2)
-            if roll == 1:
-                success = self._switch_leaf(child)
-                if not success:
-                    print(child)
-                    exit(1)
-            # if roll == 2:
-            #     return self._expand_leaf(child)
-            # if roll == 3:
-            #     return self._trim_subtree(child)
-            # if roll == 4:
-            #     return self._change_internal_node(child)
+
+        # Shuffle the variations that will be tried
+        options = list(range(5))
+        random.shuffle(options)
+
+        for option in options:
+            if success:  # stop as soon as a variation succeeds
+                break
+            if option == 0:
+                success, child = self._switch_internal_node(child)
+            if option == 1:
+                success, child = self._switch_leaf_node(child)
+            if option == 2:
+                success, child = self._trim_subtree(child)
+            if option == 3:
+                success, child = self._expand_leaf(child)
+            if option == 4:
+                success, child = self._crossover(child, parent2)
+
+        if not success:
+            print(f"Could not generate a variant child.")
+            print(child)
+            exit(1)
+
         return child
 
-    def _crossover(self, child, parent2) -> tree.Tree:
-        return child
+    def _switch_leaf_node(self, child) -> Tuple[bool, tree.Tree]:
+        indexed_nodes = child.collect_index()
+        candidates = dict(filter(lambda item: item[1]['min_leaf_dist'] == 0, indexed_nodes.items()))
+        if len(candidates) == 1:  # single-node tree
+            return False, child
+        return self._switch_node(child, candidates)
 
-    def _expand_leaf(self, child) -> tree.Tree:
-        return child
+    def _switch_internal_node(self, child) -> Tuple[bool, tree.Tree]:
+        indexed_nodes = child.collect_index()
+        candidates = dict(filter(lambda item: item[1]['min_leaf_dist'] > 0, indexed_nodes.items()))
+        if not len(candidates):
+            return False, child
+        return self._switch_node(child, candidates)
 
-    def _switch_leaf(self, child) -> bool:
-        index = child.collect_index()
-        leaves = self._filter_leaves(index)
-        if len(leaves) == 1:
-            return child
-
+    def _switch_node(self, child, candidates) -> Tuple[bool, tree.Tree]:
+        random_order = list(candidates.keys())
+        random.shuffle(random_order)
+        alternative_terminal: Union[bool, str] = False
         chosen_node_index = None
-        alternative_terminal = None
-        patience = 10
-        while alternative_terminal is None and patience:
-            patience -= 1
-            chosen_node_index = random.sample(leaves.keys(), k=1)[0]
-            chosen_node = leaves[chosen_node_index]
-            alternative_terminal = self.grammar.get_alternative_for_terminal(chosen_node['recipe'])
-
-        if not patience:
-            return False
-
+        for chosen_node_index in random_order:
+            terminal = candidates[chosen_node_index]['terminal']
+            alternative_terminal = self.grammar.get_alternative_terminal(terminal)
+            if alternative_terminal:
+                break
+        if not alternative_terminal:
+            return False, child
         new_value = alternative_terminal.split(':')[1]
         child.alter_node_value(chosen_node_index, new_value)
+        return True, child
 
-        return True
+    def _trim_subtree(self, child) -> Tuple[bool, tree.Tree]:
+        indexed_nodes = child.collect_index()
+        # Filter for subtrees that have a leaf as direct child
+        candidates = dict(filter(lambda item: item[1]['min_leaf_dist'] == 1, indexed_nodes.items()))
+        if not len(candidates):
+            return False, child
 
-    def _trim_subtree(self, child):
-        return child
+        # select a subtree
+        random_order = list(candidates.keys())
+        random.shuffle(random_order)
+        for chosen_node_index in random_order:
+            chosen_node = candidates[chosen_node_index]
+            chosen_node_return_type = self.grammar.get_reduction_to_type_non_terminal(chosen_node['terminal'])
+            candidate_children = list(range(chosen_node['num_children']))
+            random.shuffle(candidate_children)
+            for candidate_child_index in candidate_children:
+                candidate_child_information = indexed_nodes[f"{chosen_node_index}.{candidate_child_index}"]
 
-    def _change_internal_node(self, child):
-        return child
+                # test if the child's type is the same as the parent
+                candidate_child_return_type = self.grammar.get_reduction_to_type_non_terminal(candidate_child_information['terminal'])
+                if candidate_child_return_type != chosen_node_return_type:
+                    continue  # the candidate child doesn't have the same return type as the parent so cannot succeed
+
+                # replace the parent's part of the overall recipe with that of the child
+                new_recipe = self._replace_subrecipe(
+                    old_recipe=child.serialize(),
+                    serial_index=chosen_node['serial_index'],
+                    find=chosen_node['recipe'],
+                    replacement=candidate_child_information['recipe']
+                )
+                # return a fresh child based on the new recipe
+                return True, tree.create(new_recipe)
+        return False, child
+
+    def _expand_leaf(self, child) -> Tuple[bool, tree.Tree]:
+        # select a leaf
+        # select a branching operation
+        # also produce branches
+        return False, child
+
+    def _crossover(self, child, parent2) -> Tuple[bool, tree.Tree]:
+        # pick a node in the child
+        # pick a node of the same type in parent2
+        return False, child
 
     @staticmethod
-    def _filter_leaves(indexed_nodes):
-        # item is a (key, value) tuple
-        return dict(filter(lambda item: item[1]['min_leaf_dist'] == 0, indexed_nodes.items()))
+    def _replace_subrecipe(old_recipe: str, serial_index: int, find: str, replacement: str) -> str:
+        split = old_recipe.split('|')
+        left = '|'.join(split[:serial_index])
+        right = '|'.join(split[serial_index:])
+        return '|'.join([left, right.replace(find, replacement, 1)])
+
+
