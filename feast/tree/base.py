@@ -94,7 +94,9 @@ class Tree(ABC):
                 return False
         return True
 
-    def collect_index(self, index: str = '0', depth: int = 0):
+    def collect_index(self, index: str = '0', depth: int = 0, serial_index: int = 0):
+        return_serial_index = serial_index != 0  # only the root call should be False
+
         # Collect local entry
         result = {
             index: {
@@ -104,17 +106,23 @@ class Tree(ABC):
                 'node_type': self.node_type,
                 'value': self.value,
                 'recipe': f"{self.node_type}:{self.value}",
-                'num_children': len(self.children)
+                'num_children': len(self.children),
+                'terminal': f"{self.node_type}:{self.value}",
+                'serial_index': serial_index
             }
         }
+
         # Collect entries from children (and their children..)
         for i, c in enumerate(self.children):
+            serial_index += 1
             c_index = f"{index}.{i}"
-            c_result = c.collect_index(c_index, depth + 1)
+            c_result, serial_index = c.collect_index(c_index, depth + 1, serial_index)
             result[index]['min_leaf_dist'] = min(result[index]['min_leaf_dist'], c_result[c_index]['min_leaf_dist'] + 1)
             result[index]['max_leaf_dist'] = max(result[index]['max_leaf_dist'], c_result[c_index]['max_leaf_dist'] + 1)
             result[index]['recipe'] = f"{result[index]['recipe']}|{c_result[c_index]['recipe']}"
             result.update(c_result)
+        if return_serial_index:
+            return result, serial_index
         return result
 
     def alter_node_value(self, index_path: Union[str, list], new_value: str) -> None:
