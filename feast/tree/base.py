@@ -135,7 +135,8 @@ class Tree(ABC):
                 'recipe': self.serialize(),
                 'num_children': len(self.children),
                 'terminal': self.terminal,
-                'serial_index': serial_index
+                'serial_index': serial_index,
+                'return_type': self.node_type.split('_')[0]
             }
         }
 
@@ -146,7 +147,6 @@ class Tree(ABC):
             c_result, serial_index = c.collect_index(c_index, depth + 1, serial_index)
             result[index]['min_leaf_dist'] = min(result[index]['min_leaf_dist'], c_result[c_index]['min_leaf_dist'] + 1)
             result[index]['max_leaf_dist'] = max(result[index]['max_leaf_dist'], c_result[c_index]['max_leaf_dist'] + 1)
-            result[index]['recipe'] = f"{result[index]['recipe']}|{c_result[c_index]['recipe']}"
             result.update(c_result)
         if return_serial_index:
             return result, serial_index
