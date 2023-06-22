@@ -85,17 +85,17 @@ class Topiary(HyperHeuristic):
                 success, child = self._switch_internal_node(child)
             if option == 1:
                 success, child = self._switch_leaf_node(child)
-            # if option == 2:
-            #     success, child = self._trim_subtree(child)
+            if option == 2:
+                success, child = self._trim_subtree(child)
             if option == 3:
-                success, child = self._expand_leaf(child)
+                success, child = self._expand_leaf_aggressively(child)
             if option == 4:
                 success, child = self._crossover(child, parent2)
 
-        # if not success:
-        #     print(f"Could not generate a variant child.")
-        #     print(child)
-        #     exit(1)
+        if not success:
+            print(f"Could not generate a variant child.")
+            print(child)
+            exit(1)
 
         return child
 
@@ -116,17 +116,14 @@ class Topiary(HyperHeuristic):
     def _switch_node(self, child: tree.Tree, candidates: dict) -> Tuple[bool, tree.Tree]:
         random_order = list(candidates.keys())
         random.shuffle(random_order)
-        alternative_terminal: Union[bool, str] = False
-        chosen_node_index = None
         for chosen_node_index in random_order:
             terminal = candidates[chosen_node_index]['terminal']
-            alternative_terminal = self.grammar.get_alternative_terminal(terminal)
-            if alternative_terminal:
-                break
-        if not alternative_terminal:
-            return False, child
-        child.alter_node_terminal(chosen_node_index, alternative_terminal)
-        return True, child
+            serial_index = candidates[chosen_node_index]['serial_index']
+            alternative_terminal: Union[None, str] = self.grammar.get_alternative_terminal(terminal)
+            if alternative_terminal is not None:
+                new_recipe = self._replace_subrecipe(child.serialize(), serial_index, terminal, alternative_terminal)
+                return True, tree.create(new_recipe)
+        return False, child
 
     def _trim_subtree(self, child: tree.Tree) -> Tuple[bool, tree.Tree]:
         indexed_nodes = child.collect_index()
@@ -153,31 +150,68 @@ class Topiary(HyperHeuristic):
 
                 # replace the parent's part of the overall recipe with that of the child
                 new_recipe = self._replace_subrecipe(
-                    old_recipe=child.serialize(),
+                    main_recipe=child.serialize(),
                     serial_index=chosen_node['serial_index'],
-                    find=chosen_node['recipe'],
-                    replacement=candidate_child_information['recipe']
+                    old_subrecipe=chosen_node['recipe'],
+                    new_subrecipe=candidate_child_information['recipe']
                 )
                 # return a fresh child based on the new recipe
                 return True, tree.create(new_recipe)
         return False, child
 
-    def _expand_leaf(self, child: tree.Tree) -> Tuple[bool, tree.Tree]:
-        # select a leaf
-        # select a branching operation
-        # also produce branches
-        return False, child
+    def _expand_leaf_aggressively(self, child: tree.Tree) -> Tuple[bool, tree.Tree]:
+        indexed_nodes = child.collect_index()
+        candidates = dict(filter(lambda item: item[1]['min_leaf_dist'] == 0, indexed_nodes.items()))
+        choice_index = random.sample(candidates.keys(), 1)[0]
+        chosen_node = candidates[choice_index]
+        new_starting_symbol = self.grammar.get_reduction_to_type_non_terminal(chosen_node['terminal'])
+        new_subtree_recipe = self.grammar.produce_random_sentence(new_starting_symbol, minimum_length=2)
+        new_recipe = self._replace_subrecipe(
+            child.serialize(),
+            chosen_node['serial_index'],
+            chosen_node['recipe'],
+            new_subtree_recipe
+        )
+        return True, tree.create(new_recipe)
 
-    def _crossover(self, child: tree.Tree, parent2: tree.Tree) -> Tuple[bool, tree.Tree]:
-        # pick a node in the child
-        # pick a node of the same type in parent2
-        return False, child
+    def _crossover(self, parent1: tree.Tree, parent2: tree.Tree) -> Tuple[bool, tree.Tree]:
+        p1_metadata = parent1.collect_index()
+        p2_metadata = parent2.collect_index()
+
+        # Figure out which types are available for crossover (only bool, only num, or both)
+        p2_possible_types = set(node['return_type'] for node in p2_metadata.values())
+
+        # Narrow down p1 candidate nodes by p2 possible return types
+        p1_candidates = dict(filter(lambda item: item[1]['return_type'] in p2_possible_types, p1_metadata.items()))
+
+        # Chose a p1 node
+        p1_choice_index = random.sample(p1_candidates.keys(), 1)[0]
+        p1_chosen_node = p1_candidates[p1_choice_index]
+
+        # Narrow down p2 candidate nodes by return type of chosen p1 node
+        p2_candidates = dict(filter(lambda item: item[1]['return_type'] == p1_chosen_node['return_type'], p2_metadata.items()))
+
+        # Pick a p2 node
+        p2_choice_index = random.sample(p2_candidates.keys(), 1)[0]
+        p2_chosen_node = p2_candidates[p2_choice_index]
+
+        # Cross over a recipe segment from p2 to p1's recipe
+        new_recipe = self._replace_subrecipe(
+            main_recipe=parent1.serialize(),
+            serial_index=p1_chosen_node['serial_index'],
+            old_subrecipe=p1_chosen_node['recipe'],
+            new_subrecipe=p2_chosen_node['recipe'],
+        )
+        return True, tree.create(new_recipe)
 
     @staticmethod
-    def _replace_subrecipe(old_recipe: str, serial_index: int, find: str, replacement: str) -> str:
-        split = old_recipe.split('|')
+    def _replace_subrecipe(main_recipe: str, serial_index: int, old_subrecipe: str, new_subrecipe: str) -> str:
+        if serial_index == 0:
+            return main_recipe.replace(old_subrecipe, new_subrecipe, 1)
+
+        split = main_recipe.split('|')
         left = '|'.join(split[:serial_index])
         right = '|'.join(split[serial_index:])
-        return '|'.join([left, right.replace(find, replacement, 1)])
+        return '|'.join([left, right.replace(old_subrecipe, new_subrecipe, 1)])
 
 
