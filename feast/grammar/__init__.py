@@ -16,8 +16,10 @@ class Grammar:
         return json.dumps(self.productions, sort_keys=False, indent=2)
 
     def produce_random_sentence(self, starting_symbol: str, soft_limit: int = 10) -> str:
+        if starting_symbol not in ['BOOL', 'NUM']:
+            raise ValueError(f"starting symbol {starting_symbol}")
         terminals = []
-        non_terminals = [starting_symbol]  # use BOOLEAN_EXPRESSION or NUMERIC_EXPRESSION to force the type
+        non_terminals = [starting_symbol]
 
         while len(non_terminals):
             symbol = non_terminals[0]
@@ -51,8 +53,10 @@ class Grammar:
         return sentence
 
     def _produce_from_genome(self, genome: List[int], starting_symbol: str) -> Tuple[str, int]:
+        if starting_symbol not in ['BOOL', 'NUM']:
+            raise ValueError
         terminals = []
-        non_terminals = [starting_symbol]  # use BOOLEAN_EXPRESSION or NUMERIC_EXPRESSION to force the type
+        non_terminals = [starting_symbol]
         gene = 0
         wraps = 0
 

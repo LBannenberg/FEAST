@@ -6,12 +6,12 @@ EXPERIMENT_NAME = common.parameters['OUTPUT_DIR'] + 'experiment_01'
 ALGORITHM_NAME = 'original_two-rate'
 
 sentence = '|'.join([
-    'numeric_branch:if|boolean_expression:<=',
-    'numeric_random:uniform',
-    'numeric_branch:if|boolean_observable:best_child_is_low|numeric:0.75|numeric:0.25',
-    'numeric_expression:max', 'numeric_expression:/', 'numeric_observable:rate', 'numeric:2', 'numeric:2',
-    'numeric_expression:min', 'numeric_expression:*', 'numeric_observable:rate', 'numeric:2', 'numeric_expression:/',
-    'numeric_observable:dimension', 'numeric:4',
+    'numeric_ternary:if|boolean_binary_num:<=',
+    'numeric_nullary_random:uniform',
+    'numeric_ternary:if|boolean_nullary_observable:best_child_is_low|numeric_nullary:0.75|numeric_nullary:0.25',
+    'numeric_binary:max', 'numeric_binary:/', 'numeric_nullary_observable:rate', 'numeric_nullary:2', 'numeric_nullary:2',
+    'numeric_binary:min', 'numeric_binary:*', 'numeric_nullary_observable:rate', 'numeric_nullary:2', 'numeric_binary:/',
+    'numeric_nullary_observable:dimension', 'numeric_nullary:4',
 ])
 root = tree.create(sentence)
 

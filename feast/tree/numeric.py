@@ -3,13 +3,10 @@ import random
 
 
 class NumericNullary(Tree):
-    def _continue_deserialization(self, recipe):
-        return recipe
-
     def evaluate(self, observables=None) -> float:
-        if self.node_type == 'numeric_observable':
+        if self.node_type == 'numeric_nullary_observable':
             return observables['numeric'][self.value]
-        if self.terminal == 'numeric_random:uniform':
+        if self.terminal == 'numeric_nullary_random:uniform':
             return random.uniform(0, 1)
         return float(self.value)
 
@@ -25,11 +22,6 @@ class NumericNullary(Tree):
 
 
 class NumericUnary(Tree):
-    def _continue_deserialization(self, recipe):
-        child, recipe = self.create(recipe)
-        self.children.append(child)
-        return recipe
-
     def evaluate(self, observables=None) -> float:
         if self.value == 'negative':
             return -self.children[0].evaluate(observables)
@@ -41,13 +33,6 @@ class NumericUnary(Tree):
 
 
 class NumericBinary(Tree):
-    def _continue_deserialization(self, recipe):
-        child, recipe = self.create(recipe)
-        self.children.append(child)
-        child, recipe = self.create(recipe)
-        self.children.append(child)
-        return recipe
-
     def evaluate(self, observables=None) -> float:
         first_operand = self.children[0].evaluate(observables)
         second_operand = self.children[1].evaluate(observables)
@@ -85,18 +70,6 @@ class NumericBinary(Tree):
 
 
 class NumericTernary(Tree):
-    def _continue_deserialization(self, recipe):
-        child, recipe = self.create(recipe)
-        self.children.append(child)
-
-        child, recipe = self.create(recipe)
-        self.children.append(child)
-
-        child, recipe = self.create(recipe)
-        self.children.append(child)
-
-        return recipe
-
     def evaluate(self, observables=None) -> float:
         if self.children[0].evaluate(observables):
             return self.children[1].evaluate(observables)

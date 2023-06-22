@@ -21,7 +21,7 @@ ge = GE(
     enforce_unique_phenotypes=True,
     enforce_unique_coding_genotypes=True,
     survival='plus',
-    must_observe=['numeric_observable:rate']
+    must_observe=['numeric_nullary_observable:rate']
 )
 ge.initialize_population()
 ge.run()

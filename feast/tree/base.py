@@ -21,33 +21,37 @@ class Tree(ABC):
         node_type, node_value = ingredient.split(':')
         node = None
 
-        if node_type in ['numeric', 'numeric_observable', 'numeric_random']:
+        if 'numeric_nullary' in node_type:
             from feast.tree.numeric import NumericNullary
             node = NumericNullary(ingredient)
         if node_type == 'numeric_unary':
             from feast.tree.numeric import NumericUnary
             node = NumericUnary(ingredient)
-        if node_type == 'numeric_expression':
+        if node_type == 'numeric_binary':
             from feast.tree.numeric import NumericBinary
             node = NumericBinary(ingredient)
-        if node_type == 'numeric_branch':
+        if node_type == 'numeric_ternary':
             from feast.tree.numeric import NumericTernary
             node = NumericTernary(ingredient)
-        if node_type == 'boolean':
-            from feast.tree.boolean import Boolean
-            node = Boolean(ingredient)
-        if node_type == 'boolean_expression':
-            from feast.tree.boolean import BooleanExpression
-            node = BooleanExpression(ingredient)
-        if node_type == 'boolean_observable':
-            from feast.tree.boolean import BooleanObservable
-            node = BooleanObservable(ingredient)
-        if node_type == 'boolean_random':
-            from feast.tree.boolean import BooleanRandom
-            node = BooleanRandom(ingredient)
-        if node_type == 'boolean_branch':
-            from feast.tree.boolean import BooleanIfThenElse
-            node = BooleanIfThenElse(ingredient)
+
+        if 'boolean_nullary' in node_type:
+            from feast.tree.boolean import BooleanNullary
+            node = BooleanNullary(ingredient)
+        if node_type == 'boolean_unary':
+            from feast.tree.boolean import BooleanUnary
+            node = BooleanUnary(ingredient)
+        if node_type == 'boolean_unary_num':
+            from feast.tree.boolean import BooleanUnaryNum
+            node = BooleanUnaryNum(ingredient)
+        if node_type == 'boolean_binary':
+            from feast.tree.boolean import BooleanBinary
+            node = BooleanBinary(ingredient)
+        if node_type == 'boolean_binary_num':
+            from feast.tree.boolean import BooleanBinaryNum
+            node = BooleanBinaryNum(ingredient)
+        if node_type == 'boolean_ternary':
+            from feast.tree.boolean import BooleanTernary
+            node = BooleanTernary(ingredient)
 
         if node is None:
             raise ValueError(f"Cannot create node from ingredient {ingredient}")
@@ -77,9 +81,28 @@ class Tree(ABC):
     def node_type(self):
         return self.terminal.split(':')[0]
 
-    @abstractmethod
     def _continue_deserialization(self, recipe):
-        pass
+        if 'nullary' in self.node_type:
+            return recipe
+        if 'unary' in self.node_type:
+            child, recipe = self.create(recipe)
+            self.children.append(child)
+            return recipe
+        if 'binary' in self.node_type:
+            child, recipe = self.create(recipe)
+            self.children.append(child)
+            child, recipe = self.create(recipe)
+            self.children.append(child)
+            return recipe
+        if 'ternary' in self.node_type:
+            child, recipe = self.create(recipe)
+            self.children.append(child)
+            child, recipe = self.create(recipe)
+            self.children.append(child)
+            child, recipe = self.create(recipe)
+            self.children.append(child)
+            return recipe
+        raise ValueError(f'Could not determine how to continue deserialization for terminal: {self.terminal}')
 
     def __repr__(self, depth=0):
         this = f"\n{self.indent * depth}{self.terminal}"

@@ -21,55 +21,55 @@
   ],
   "NUM_NULLARY_OPERATOR": [
     [
-      "numeric:-1"
+      "numeric_nullary:-1"
     ],
     [
-      "numeric:-0.5"
+      "numeric_nullary:-0.5"
     ],
     [
-      "numeric:0"
+      "numeric_nullary:0"
     ],
     [
-      "numeric:0.1"
+      "numeric_nullary:0.1"
     ],
     [
-      "numeric:0.5"
+      "numeric_nullary:0.5"
     ],
     [
-      "numeric:1"
+      "numeric_nullary:1"
     ],
     [
-      "numeric:2"
+      "numeric_nullary:2"
     ],
     [
-      "numeric:3"
+      "numeric_nullary:3"
     ],
     [
-      "numeric:4"
+      "numeric_nullary:4"
     ],
     [
-      "numeric:5"
+      "numeric_nullary:5"
     ],
     [
-      "numeric:10"
+      "numeric_nullary:10"
     ],
     [
-      "numeric:20"
+      "numeric_nullary:20"
     ],
     [
-      "numeric:50"
+      "numeric_nullary:50"
     ],
     [
-      "numeric:100"
+      "numeric_nullary:100"
     ],
     [
-      "numeric_random:uniform"
+      "numeric_nullary_random:uniform"
     ],
     [
-      "numeric_observable:rate"
+      "numeric_nullary_observable:rate"
     ],
     [
-      "numeric_observable:dimension"
+      "numeric_nullary_observable:dimension"
     ]
   ],
   "NUM_UNARY_OPERATOR": [
@@ -79,27 +79,27 @@
   ],
   "NUM_BINARY_OPERATOR": [
     [
-      "numeric_expression:+"
+      "numeric_binary:+"
     ],
     [
-      "numeric_expression:-"
+      "numeric_binary:-"
     ],
     [
-      "numeric_expression:*"
+      "numeric_binary:*"
     ],
     [
-      "numeric_expression:/"
+      "numeric_binary:/"
     ],
     [
-      "numeric_expression:min"
+      "numeric_binary:min"
     ],
     [
-      "numeric_expression:max"
+      "numeric_binary:max"
     ]
   ],
   "NUM_TERNARY_OPERATOR": [
     [
-      "numeric_branch:if"
+      "numeric_ternary:if"
     ]
   ],
   "BOOL": [
@@ -133,59 +133,59 @@
   ],
   "BOOL_NULLARY_OPERATOR": [
     [
-      "boolean:true"
+      "boolean_nullary:true"
     ],
     [
-      "boolean:false"
+      "boolean_nullary:false"
     ],
     [
-      "boolean_random:uniform"
+      "boolean_nullary_random:uniform"
     ],
     [
-      "boolean_observable:best_child_is_low"
+      "boolean_nullary_observable:best_child_is_low"
     ]
   ],
   "BOOL_UNARY_OPERATOR": [
     [
-      "boolean_expression:not"
+      "boolean_unary:not"
     ]
   ],
   "BOOL_UNARY_NUM_OPERATOR": [
     [
-      "boolean_expression:truthy"
+      "boolean_unary_num:truthy"
     ]
   ],
   "BOOL_BINARY_OPERATOR": [
     [
-      "boolean_expression:and"
+      "boolean_binary:and"
     ],
     [
-      "boolean_expression:or"
+      "boolean_binary:or"
     ]
   ],
   "BOOL_BINARY_NUM_OPERATOR": [
     [
-      "boolean_expression:>"
+      "boolean_binary_num:>"
     ],
     [
-      "boolean_expression:>="
+      "boolean_binary_num:>="
     ],
     [
-      "boolean_expression:=="
+      "boolean_binary_num:=="
     ],
     [
-      "boolean_expression:<="
+      "boolean_binary_num:<="
     ],
     [
-      "boolean_expression:<"
+      "boolean_binary_num:<"
     ],
     [
-      "boolean_expression:!="
+      "boolean_binary_num:!="
     ]
   ],
   "BOOL_TERNARY_OPERATOR": [
     [
-      "boolean_branch:if"
+      "boolean_ternary:if"
     ]
   ]
 }

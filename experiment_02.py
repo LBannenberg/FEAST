@@ -5,7 +5,7 @@ import common
 EXPERIMENT_NAME = common.parameters['OUTPUT_DIR'] + 'experiment_02'
 ALGORITHM_NAME = 'fixed_two-rate'
 
-sentence = 'numeric_observable:rate'
+sentence = 'numeric_nullary_observable:rate'
 root = tree.create(sentence)
 
 f = common.get_fresh_problem()
