@@ -15,7 +15,7 @@ class Grammar:
     def __repr__(self) -> str:
         return json.dumps(self.productions, sort_keys=False, indent=2)
 
-    def produce_random_sentence(self, starting_symbol: str, soft_limit: int = 10) -> str:
+    def produce_random_sentence(self, starting_symbol: str, soft_limit: int = 10, minimum_length: int = 0) -> str:
         if starting_symbol not in ['BOOL', 'NUM']:
             raise ValueError(f"starting symbol {starting_symbol}")
         terminals = []
@@ -33,6 +33,9 @@ class Grammar:
 
             options = self.productions[symbol]
             choice = options[random.randint(0, len(options) - 1)]
+
+            if len(terminals) < minimum_length and choice in ['NUM_NULLARY_OPERATOR', 'BOOL_NULLARY_OPERATOR']:
+                continue  # try again
 
             # If the limit was triggered and we're decoding a type-nonterminal,
             # override the choice with a nullary arity-nonterminal
