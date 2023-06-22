@@ -21,7 +21,8 @@ ge = GE(
     enforce_unique_phenotypes=True,
     enforce_unique_coding_genotypes=True,
     survival='plus',
-    must_observe=['numeric_nullary_observable:rate']
+    must_observe=['numeric_nullary_observable:rate'],
+    # random_seed=1
 )
 ge.initialize_population()
 ge.run()
@@ -35,11 +36,12 @@ for i in range(ge.parent_population_size):
 root = ge.get_individual(0)
 print(f"Best Formula: {root.formula}")
 
-f = common.get_fresh_problem()
-l = common.get_logger(EXPERIMENT_NAME, ALGORITHM_NAME)
-f.attach_logger(l)
+for i in range(5):
+    f = common.get_fresh_problem()
+    l = common.get_logger(EXPERIMENT_NAME, ALGORITHM_NAME)
+    f.attach_logger(l)
 
-inner_heuristic = common.get_fresh_inner_heuristic(f)
-inner_heuristic.inject_function(root.evaluate)
-y_best, x_best, f = inner_heuristic.run()
-print(f"result: {y_best} as {x_best} using {f.state.evaluations} evaluations")
+    inner_heuristic = common.get_fresh_inner_heuristic(f)
+    inner_heuristic.inject_function(root.evaluate)
+    y_best, x_best, f = inner_heuristic.run()
+    print(f"result: {y_best} as {x_best} using {f.state.evaluations} evaluations")

@@ -13,13 +13,11 @@ lowest_evaluations = math.inf
 best_recipe = None
 
 # Train
+print('training', end='')
 for i in range(common.parameters['OUTER_BUDGET']):
+    print('.', end='')
     recipe = grammar.produce_random_sentence(soft_limit=5, starting_symbol='NUM')
     root = tree.create(recipe)
-
-    print(f"Generation {i}")
-    print(f"  Formula: {root.formula}")
-    print(f"  Static?: {'yes' if root.is_static else 'no'}")
 
     performance = []
     for i in range(common.parameters['OUTER_TRIALS']):
@@ -32,16 +30,17 @@ for i in range(common.parameters['OUTER_BUDGET']):
     if mean < lowest_evaluations:
         lowest_evaluations = mean
         best_recipe = recipe
-    print(f"  lowest: {lowest_evaluations}, current: {mean}")
+print('finished')
 
 # Validate on end result
 root = tree.create(best_recipe)
 
-f = common.get_fresh_problem()
-l = common.get_logger(EXPERIMENT_NAME, ALGORITHM_NAME)
-f.attach_logger(l)
+for i in range(5):
+    f = common.get_fresh_problem()
+    l = common.get_logger(EXPERIMENT_NAME, ALGORITHM_NAME)
+    f.attach_logger(l)
 
-inner_heuristic = common.get_fresh_inner_heuristic(f)
-inner_heuristic.inject_function(root.evaluate)
-y_best, x_best, f = inner_heuristic.run()
-print(f"result: {y_best} as {x_best} using {f.state.evaluations} evaluations")
+    inner_heuristic = common.get_fresh_inner_heuristic(f)
+    inner_heuristic.inject_function(root.evaluate)
+    y_best, x_best, f = inner_heuristic.run()
+    print(f"result: {y_best} as {x_best} using {f.state.evaluations} evaluations")
