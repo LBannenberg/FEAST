@@ -20,7 +20,8 @@
       "BOOL",
       "NUM",
       "NUM"
-    ]
+    ],
+    ["NUM_OBSERVABLE"]
   ],
   "NUM_COND": [
     ["numeric_branch:if"]
@@ -55,7 +56,8 @@
       "BOOL",
       "BOOL",
       "BOOL"
-    ]
+    ],
+    ["BOOL_OBSERVABLE"]
   ],
   "BOOL_COND": [
     [
@@ -110,6 +112,10 @@
     [
       "numeric_random:uniform"
     ]
+  ],
+  "NUM_OBSERVABLE": [
+    ["numeric_observable:rate"],
+    ["numeric_observable:dimension"]
   ],
   "NUM_UNARY_OPERATOR": [
     [
@@ -186,5 +192,8 @@
     [
       "boolean_expression:!="
     ]
+  ],
+  "BOOL_OBSERVABLE": [
+    ["boolean_observable:best_child_is_low"]
   ]
 }

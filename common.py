@@ -48,5 +48,4 @@ def get_logger(experiment_name, algorithm_name):
 
 
 def get_grammar():
-    observables_declaration = {'boolean': ['best_child_is_low'], 'numeric': ['rate', 'dimension']}
-    return Grammar(observable_declaration=observables_declaration)
+    return Grammar()

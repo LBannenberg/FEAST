@@ -4,22 +4,10 @@ from typing import Union, List, Tuple
 
 
 class Grammar:
-    def __init__(self, observable_declaration, wraparound: int = 0, grammar_definition: str = 'feast/grammar/mixed.json'):
-        with open(grammar_definition) as f:
-            rules = json.load(f)
+    def __init__(self, wraparound: int = 0, grammar_definition: str = 'feast/grammar/mixed.json'):
         self.wraparound = wraparound
-        if 'numeric' in observable_declaration and len(observable_declaration['numeric']):
-            rules['NUM_OBSERVABLE'] = [
-                ['numeric_observable:' + name] for name in observable_declaration['numeric']
-            ]
-            rules['NUM'].append(['NUM_OBSERVABLE'])
-
-        if 'boolean' in observable_declaration and len(observable_declaration['boolean']):
-            rules['BOOL_OBSERVABLE'] = [
-                ['boolean_observable:' + name] for name in observable_declaration['boolean']
-            ]
-            rules['BOOL'].append(['BOOL_OBSERVABLE'])
-        self.productions = rules
+        with open(grammar_definition) as f:
+            self.productions = json.load(f)
         self.reductions = self._prepare_reductions()
 
     def __repr__(self) -> str:
