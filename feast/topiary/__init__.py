@@ -39,7 +39,7 @@ class Topiary(HyperHeuristic):
         self.enforce_unique_phenotypes = enforce_unique_phenotypes
         self.unique_phenotypes = set()
 
-    def initialize_population(self):
+    def initialize_population(self) -> None:
         # TODO: make this more generic, so it can be moved into the abstract class
         print("Initializing population...")
         while len(self.parent_population) < self.parent_population_size:
@@ -55,7 +55,7 @@ class Topiary(HyperHeuristic):
         self.parent_population, self.parent_population_fitness = self._sort_by_fitness(
             self.parent_population, self.parent_population_fitness)
 
-    def _validate(self, individual, strict=True):
+    def _validate(self, individual: tree.Tree, strict=True) -> bool:
         if self.must_observe and type(self.must_observe) is list:
             serialized = individual.serialize()
             for terminal in self.must_observe:
@@ -99,21 +99,21 @@ class Topiary(HyperHeuristic):
 
         return child
 
-    def _switch_leaf_node(self, child) -> Tuple[bool, tree.Tree]:
+    def _switch_leaf_node(self, child: tree.Tree) -> Tuple[bool, tree.Tree]:
         indexed_nodes = child.collect_index()
         candidates = dict(filter(lambda item: item[1]['min_leaf_dist'] == 0, indexed_nodes.items()))
         if len(candidates) == 1:  # single-node tree
             return False, child
         return self._switch_node(child, candidates)
 
-    def _switch_internal_node(self, child) -> Tuple[bool, tree.Tree]:
+    def _switch_internal_node(self, child: tree.Tree) -> Tuple[bool, tree.Tree]:
         indexed_nodes = child.collect_index()
         candidates = dict(filter(lambda item: item[1]['min_leaf_dist'] > 0, indexed_nodes.items()))
         if not len(candidates):
             return False, child
         return self._switch_node(child, candidates)
 
-    def _switch_node(self, child, candidates) -> Tuple[bool, tree.Tree]:
+    def _switch_node(self, child: tree.Tree, candidates: dict) -> Tuple[bool, tree.Tree]:
         random_order = list(candidates.keys())
         random.shuffle(random_order)
         alternative_terminal: Union[bool, str] = False
@@ -129,7 +129,7 @@ class Topiary(HyperHeuristic):
         child.alter_node_value(chosen_node_index, new_value)
         return True, child
 
-    def _trim_subtree(self, child) -> Tuple[bool, tree.Tree]:
+    def _trim_subtree(self, child: tree.Tree) -> Tuple[bool, tree.Tree]:
         indexed_nodes = child.collect_index()
         # Filter for subtrees that have a leaf as direct child
         candidates = dict(filter(lambda item: item[1]['min_leaf_dist'] == 1, indexed_nodes.items()))
@@ -163,13 +163,13 @@ class Topiary(HyperHeuristic):
                 return True, tree.create(new_recipe)
         return False, child
 
-    def _expand_leaf(self, child) -> Tuple[bool, tree.Tree]:
+    def _expand_leaf(self, child: tree.Tree) -> Tuple[bool, tree.Tree]:
         # select a leaf
         # select a branching operation
         # also produce branches
         return False, child
 
-    def _crossover(self, child, parent2) -> Tuple[bool, tree.Tree]:
+    def _crossover(self, child: tree.Tree, parent2: tree.Tree) -> Tuple[bool, tree.Tree]:
         # pick a node in the child
         # pick a node of the same type in parent2
         return False, child
