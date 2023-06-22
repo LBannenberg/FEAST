@@ -1,9 +1,10 @@
 import json
 import random
+from typing import Union, List, Tuple
 
 
 class Grammar:
-    def __init__(self, observable_declaration, wraparound=0, grammar_definition='feast/grammar/mixed.json'):
+    def __init__(self, observable_declaration, wraparound: int = 0, grammar_definition: str = 'feast/grammar/mixed.json'):
         with open(grammar_definition) as f:
             rules = json.load(f)
         self.wraparound = wraparound
@@ -19,11 +20,12 @@ class Grammar:
             ]
             rules['BOOL'].append(['BOOL_OBSERVABLE'])
         self.productions = rules
+        self.reductions = self._prepare_reductions()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return json.dumps(self.productions, sort_keys=False, indent=2)
 
-    def produce_random_sentence(self, soft_limit=10, starting_symbol='START'):
+    def produce_random_sentence(self, starting_symbol: str, soft_limit: int = 10) -> str:
         terminals = []
         non_terminals = [starting_symbol]  # use BOOLEAN_EXPRESSION or NUMERIC_EXPRESSION to force the type
 
@@ -48,15 +50,15 @@ class Grammar:
             non_terminals, terminals = self._produce(choice, non_terminals, terminals)
         return '|'.join(terminals)
 
-    def get_genome_coding_length(self, genome, starting_symbol):
+    def get_genome_coding_length(self, genome: List[int], starting_symbol: str) -> int:
         _, coding_length = self._produce_from_genome(genome, starting_symbol=starting_symbol)
         return coding_length
 
-    def get_sentence_from_genome(self, genome, starting_symbol):
+    def get_sentence_from_genome(self, genome: List[int], starting_symbol: str) -> str:
         sentence, _ = self._produce_from_genome(genome, starting_symbol=starting_symbol)
         return sentence
 
-    def _produce_from_genome(self, genome, starting_symbol):
+    def _produce_from_genome(self, genome: List[int], starting_symbol: str) -> Tuple[str, int]:
         terminals = []
         non_terminals = [starting_symbol]  # use BOOLEAN_EXPRESSION or NUMERIC_EXPRESSION to force the type
         gene = 0
@@ -65,8 +67,8 @@ class Grammar:
         while len(non_terminals):
             if gene >= len(genome):
                 if (
-                        self.wraparound == 0  # no wrap
-                        or (0 < self.wraparound <= wraps)  # exhausted wraps
+                    self.wraparound == 0  # no wrap
+                    or (0 < self.wraparound <= wraps)  # exhausted wraps
                 ):
                     break
                 gene = 0
@@ -85,7 +87,7 @@ class Grammar:
         coding_length = len(genome) if wraps else gene
         return sentence, coding_length
 
-    def _produce(self, choice, non_terminals, terminals):
+    def _produce(self, choice: List[str], non_terminals: List[str], terminals: List[str]) -> Tuple[list, list]:
         new_terminals = []
         new_non_terminals = []
         for s in choice:
@@ -98,7 +100,7 @@ class Grammar:
         return non_terminals, terminals
 
     @property
-    def terminals(self):
+    def terminals(self) -> List[str]:
         terminals = set()
         for _, productions in self.productions.items():
             for production in productions:
@@ -108,27 +110,27 @@ class Grammar:
         return list(terminals)
 
     @property
-    def non_terminals(self):
+    def non_terminals(self) -> list:
         return list(self.productions.keys())
 
-    def get_alternative_for_terminal(self, terminal):
-        flag = False
-        patience = 5
+    def get_alternative_terminal(self, terminal: str) -> Union[str, None]:
+        non_terminal = self.reductions[terminal]
+        alternatives = [rule for rule in self.productions[non_terminal] if terminal not in rule]
+        if len(alternatives) == 0:
+            return None
+        choice = random.randint(0, len(alternatives) - 1)
+        return alternatives[choice][0]
+
+    def _prepare_reductions(self) -> dict:
+        reductions = {}
         for non_terminal, rules in self.productions.items():
-            if len(rules) == 1:  # there are no alternatives here
-                continue
+            for rule in rules:
+                symbol = rule[0]  # because we use prefix notation
+                reductions[symbol] = non_terminal
+        return reductions
 
-            for rule in rules:  # this production has a rule to generate this terminal
-                if len(rule) == 1 and terminal in rule:
-                    flag = True
-
-            # find a different rule to generate a different
-            if flag:
-                new_terminal = terminal
-                while new_terminal == terminal and patience:
-                    patience -= 1
-                    rule = random.sample(rules, 1)[0]
-                    new_terminal = rule[0]
-                return new_terminal
-
-        return None  # could not find a new terminal
+    def get_reduction_to_type_non_terminal(self, terminal: str) -> str:
+        reduction = self.reductions[terminal]
+        if reduction not in ['NUM', 'BOOL']:
+            reduction = self.reductions[reduction]
+        return reduction
