@@ -1,10 +1,7 @@
 {
   "NUM": [
     [
-      "NUM_CONSTANT"
-    ],
-    [
-      "NUM_RANDOM"
+      "NUM_NULLARY_OPERATOR"
     ],
     [
       "NUM_UNARY_OPERATOR",
@@ -16,55 +13,13 @@
       "NUM"
     ],
     [
-      "NUM_COND",
+      "NUM_TERNARY_OPERATOR",
       "BOOL",
       "NUM",
       "NUM"
-    ],
-    ["NUM_OBSERVABLE"]
-  ],
-  "NUM_COND": [
-    ["numeric_branch:if"]
-  ],
-  "BOOL": [
-    [
-      "BOOL_CONSTANT"
-    ],
-    [
-      "BOOL_RANDOM"
-    ],
-    [
-      "BOOL_UNARY_OPERATOR",
-      "BOOL"
-    ],
-    [
-      "BOOL_UNARY_OPERATOR_NUM",
-      "NUM"
-    ],
-    [
-      "BOOL_BINARY_OPERATOR",
-      "BOOL",
-      "BOOL"
-    ],
-    [
-      "BOOL_BINARY_OPERATOR_NUM",
-      "NUM",
-      "NUM"
-    ],
-    [
-      "BOOL_COND",
-      "BOOL",
-      "BOOL",
-      "BOOL"
-    ],
-    ["BOOL_OBSERVABLE"]
-  ],
-  "BOOL_COND": [
-    [
-      "boolean_branch:if"
     ]
   ],
-  "NUM_CONSTANT": [
+  "NUM_NULLARY_OPERATOR": [
     [
       "numeric:-1"
     ],
@@ -106,16 +61,16 @@
     ],
     [
       "numeric:100"
-    ]
-  ],
-  "NUM_RANDOM": [
+    ],
     [
       "numeric_random:uniform"
+    ],
+    [
+      "numeric_observable:rate"
+    ],
+    [
+      "numeric_observable:dimension"
     ]
-  ],
-  "NUM_OBSERVABLE": [
-    ["numeric_observable:rate"],
-    ["numeric_observable:dimension"]
   ],
   "NUM_UNARY_OPERATOR": [
     [
@@ -142,17 +97,52 @@
       "numeric_expression:max"
     ]
   ],
-  "BOOL_CONSTANT": [
+  "NUM_TERNARY_OPERATOR": [
+    [
+      "numeric_branch:if"
+    ]
+  ],
+  "BOOL": [
+    [
+      "BOOL_NULLARY_OPERATOR"
+    ],
+    [
+      "BOOL_UNARY_OPERATOR",
+      "BOOL"
+    ],
+    [
+      "BOOL_UNARY_NUM_OPERATOR",
+      "NUM"
+    ],
+    [
+      "BOOL_BINARY_OPERATOR",
+      "BOOL",
+      "BOOL"
+    ],
+    [
+      "BOOL_BINARY_NUM_OPERATOR",
+      "NUM",
+      "NUM"
+    ],
+    [
+      "BOOL_TERNARY_OPERATOR",
+      "BOOL",
+      "BOOL",
+      "BOOL"
+    ]
+  ],
+  "BOOL_NULLARY_OPERATOR": [
     [
       "boolean:true"
     ],
     [
       "boolean:false"
-    ]
-  ],
-  "BOOL_RANDOM": [
+    ],
     [
       "boolean_random:uniform"
+    ],
+    [
+      "boolean_observable:best_child_is_low"
     ]
   ],
   "BOOL_UNARY_OPERATOR": [
@@ -160,7 +150,7 @@
       "boolean_expression:not"
     ]
   ],
-  "BOOL_UNARY_OPERATOR_NUM": [
+  "BOOL_UNARY_NUM_OPERATOR": [
     [
       "boolean_expression:truthy"
     ]
@@ -173,7 +163,7 @@
       "boolean_expression:or"
     ]
   ],
-  "BOOL_BINARY_OPERATOR_NUM": [
+  "BOOL_BINARY_NUM_OPERATOR": [
     [
       "boolean_expression:>"
     ],
@@ -193,7 +183,9 @@
       "boolean_expression:!="
     ]
   ],
-  "BOOL_OBSERVABLE": [
-    ["boolean_observable:best_child_is_low"]
+  "BOOL_TERNARY_OPERATOR": [
+    [
+      "boolean_branch:if"
+    ]
   ]
 }

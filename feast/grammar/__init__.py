@@ -9,6 +9,8 @@ class Grammar:
         with open(grammar_definition) as f:
             self.productions = json.load(f)
         self.reductions = self._prepare_reductions()
+        self._terminals = set()
+        self._non_terminals = set()
 
     def __repr__(self) -> str:
         return json.dumps(self.productions, sort_keys=False, indent=2)
@@ -27,14 +29,16 @@ class Grammar:
             if len(terminals) > soft_limit * 10:
                 limit_triggered = True
 
-            # If limited, bound the size of the tree by only making leaves
-            if limit_triggered and symbol in ['NUM', 'NUM_BINARY_OPERATOR', 'NUM_COND']:
-                symbol = 'NUM_CONSTANT'
-            if limit_triggered and symbol == ['BOOL', 'BOOL_BINARY_OPERATOR', 'BOOL_COND']:
-                symbol = 'BOOL_CONSTANT'
-
             options = self.productions[symbol]
             choice = options[random.randint(0, len(options) - 1)]
+
+            # If the limit was triggered and we're decoding a type-nonterminal,
+            # override the choice with a nullary arity-nonterminal
+            if limit_triggered and symbol == 'NUM':
+                choice = ['NUM_NULLARY_OPERATOR']
+            if limit_triggered and symbol == 'BOOL':
+                choice = ['BOOL_NULLARY_OPERATOR']
+
             non_terminals, terminals = self._produce(choice, non_terminals, terminals)
         return '|'.join(terminals)
 
@@ -89,17 +93,21 @@ class Grammar:
 
     @property
     def terminals(self) -> List[str]:
-        terminals = set()
-        for _, productions in self.productions.items():
-            for production in productions:
-                for symbol in production:
-                    if symbol not in self.non_terminals:
-                        terminals.add(symbol)
-        return list(terminals)
+        if len(self._terminals) == 0:
+            terminals = set()
+            for _, productions in self.productions.items():
+                for production in productions:
+                    for symbol in production:
+                        if symbol not in self.non_terminals:
+                            terminals.add(symbol)
+            self._terminals = terminals
+        return list(self._terminals)
 
     @property
     def non_terminals(self) -> list:
-        return list(self.productions.keys())
+        if len(self._non_terminals) == 0:
+            self._non_terminals = set(self.productions.keys())
+        return list(self._non_terminals)
 
     def get_alternative_terminal(self, terminal: str) -> Union[str, None]:
         non_terminal = self.reductions[terminal]
