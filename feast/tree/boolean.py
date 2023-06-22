@@ -4,8 +4,6 @@ from feast.tree.base import Tree
 
 
 class BooleanIfThenElse(Tree):
-    node_type = 'boolean_branch'
-
     def _continue_deserialization(self, recipe):
         child, recipe = self.create(recipe)
         self.children.append(child)
@@ -29,8 +27,6 @@ class BooleanIfThenElse(Tree):
 
 
 class Boolean(Tree):
-    node_type = 'boolean'
-
     def _continue_deserialization(self, recipe):
         return recipe
 
@@ -43,8 +39,6 @@ class Boolean(Tree):
 
 
 class BooleanExpression(Tree):
-    node_type = 'boolean_expression'
-
     def _continue_deserialization(self, recipe):
         if self.value in ['not', 'truthy']:
             child, recipe = self.create(recipe)
@@ -91,8 +85,6 @@ class BooleanExpression(Tree):
 
 
 class BooleanObservable(Tree):
-    node_type = 'boolean_observable'
-
     def _continue_deserialization(self, recipe):
         return recipe
 
@@ -109,8 +101,6 @@ class BooleanObservable(Tree):
 
 
 class BooleanRandom(Tree):
-    node_type = 'boolean_random'
-
     def _continue_deserialization(self, recipe):
         return recipe
 

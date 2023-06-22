@@ -85,17 +85,17 @@ class Topiary(HyperHeuristic):
                 success, child = self._switch_internal_node(child)
             if option == 1:
                 success, child = self._switch_leaf_node(child)
-            if option == 2:
-                success, child = self._trim_subtree(child)
+            # if option == 2:
+            #     success, child = self._trim_subtree(child)
             if option == 3:
                 success, child = self._expand_leaf(child)
             if option == 4:
                 success, child = self._crossover(child, parent2)
 
-        if not success:
-            print(f"Could not generate a variant child.")
-            print(child)
-            exit(1)
+        # if not success:
+        #     print(f"Could not generate a variant child.")
+        #     print(child)
+        #     exit(1)
 
         return child
 
@@ -125,8 +125,7 @@ class Topiary(HyperHeuristic):
                 break
         if not alternative_terminal:
             return False, child
-        new_value = alternative_terminal.split(':')[1]
-        child.alter_node_value(chosen_node_index, new_value)
+        child.alter_node_terminal(chosen_node_index, alternative_terminal)
         return True, child
 
     def _trim_subtree(self, child: tree.Tree) -> Tuple[bool, tree.Tree]:

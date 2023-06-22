@@ -18,7 +18,8 @@ topiary = Topiary(
     child_population_size=15,
     # enforce_unique_phenotypes=True,
     survival='plus',
-    # must_observe=['numeric_observable:rate']
+    # must_observe=['numeric_observable:rate'],
+    random_seed=0
 )
 topiary.initialize_population()
 topiary.run()

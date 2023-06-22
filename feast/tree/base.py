@@ -4,12 +4,13 @@ from typing import Union
 
 
 class Tree(ABC):
-    node_type = 'tree'
     indent = ' '
 
-    def __init__(self, value='root'):
+    def __init__(self, terminal):
+        if ':' not in terminal:
+            raise ValueError
+        self.terminal = terminal
         self._height = None
-        self.value = value
         self.children = []
 
     @staticmethod
@@ -20,46 +21,41 @@ class Tree(ABC):
         node_type, node_value = ingredient.split(':')
         node = None
 
-        if node_type == 'numeric':
-            from feast.tree.numeric import Numeric
-            node = Numeric(node_value)
+        if node_type in ['numeric', 'numeric_observable', 'numeric_random']:
+            from feast.tree.numeric import NumericNullary
+            node = NumericNullary(ingredient)
+        if node_type == 'numeric_unary':
+            from feast.tree.numeric import NumericUnary
+            node = NumericUnary(ingredient)
         if node_type == 'numeric_expression':
-            from feast.tree.numeric import NumericExpression
-            node = NumericExpression(node_value)
-        if node_type == 'numeric_observable':
-            from feast.tree.numeric import NumericObservable
-            node = NumericObservable(node_value)
-        if node_type == 'numeric_random':
-            from feast.tree.numeric import NumericRandom
-            node = NumericRandom(node_value)
+            from feast.tree.numeric import NumericBinary
+            node = NumericBinary(ingredient)
         if node_type == 'numeric_branch':
-            from feast.tree.numeric import NumericIfThenElse
-            node = NumericIfThenElse(node_value)
+            from feast.tree.numeric import NumericTernary
+            node = NumericTernary(ingredient)
         if node_type == 'boolean':
             from feast.tree.boolean import Boolean
-            node = Boolean(node_value)
+            node = Boolean(ingredient)
         if node_type == 'boolean_expression':
             from feast.tree.boolean import BooleanExpression
-            node = BooleanExpression(node_value)
+            node = BooleanExpression(ingredient)
         if node_type == 'boolean_observable':
             from feast.tree.boolean import BooleanObservable
-            node = BooleanObservable(node_value)
+            node = BooleanObservable(ingredient)
         if node_type == 'boolean_random':
             from feast.tree.boolean import BooleanRandom
-            node = BooleanRandom(node_value)
+            node = BooleanRandom(ingredient)
         if node_type == 'boolean_branch':
             from feast.tree.boolean import BooleanIfThenElse
-            node = BooleanIfThenElse(node_value)
-
+            node = BooleanIfThenElse(ingredient)
 
         if node is None:
-            raise ValueError(f"Cannot create node from ingredient {node_type}:{node_value}")
+            raise ValueError(f"Cannot create node from ingredient {ingredient}")
 
         return [node, node._continue_deserialization(remaining_ingredients)]
 
     def serialize(self):
-        return '|'.join([self.node_type + ':' + self.value]
-                        + [child.serialize() for child in self.children])
+        return '|'.join([self.terminal] + [child.serialize() for child in self.children])
 
     @abstractmethod
     def evaluate(self, observables=None) -> Union[bool, float]:
@@ -73,12 +69,20 @@ class Tree(ABC):
             self._height = max([child.height for child in self.children]) + 1
         return self._height
 
+    @property
+    def value(self):
+        return self.terminal.split(':')[1]
+
+    @property
+    def node_type(self):
+        return self.terminal.split(':')[0]
+
     @abstractmethod
     def _continue_deserialization(self, recipe):
         pass
 
     def __repr__(self, depth=0):
-        this = f"\n{self.indent * depth}{self.node_type}:{self.value}"
+        this = f"\n{self.indent * depth}{self.terminal}"
         children = "".join([child.__repr__(depth + 1) for child in self.children])
         return this + children
 
@@ -105,9 +109,9 @@ class Tree(ABC):
                 'depth': depth,
                 'node_type': self.node_type,
                 'value': self.value,
-                'recipe': f"{self.node_type}:{self.value}",
+                'recipe': self.serialize(),
                 'num_children': len(self.children),
-                'terminal': f"{self.node_type}:{self.value}",
+                'terminal': self.terminal,
                 'serial_index': serial_index
             }
         }
@@ -125,15 +129,11 @@ class Tree(ABC):
             return result, serial_index
         return result
 
-    def alter_node_value(self, index_path: Union[str, list], new_value: str) -> None:
-        """ Alter the value of the last node of the index_path.
-
-        :param index_path: a string like '0.0.1.0' or a list like ['0', '0', '1', '0']
-        :param new_value: a terminal value like '+', '1' or 'uniform' or 'false'
-        :return: None
+    def alter_node_terminal(self, index_path: Union[str, list], new_terminal: str) -> None:
+        """ Alter the terminal (and type, value) of the last node of the index_path.
 
         We walk the index_path to the end and when we're in the LAST
-         part of the path, we switch the value.
+         part of the path, we switch the terminal.
         """
         # Used by root note
         if type(index_path) is str:
@@ -141,12 +141,12 @@ class Tree(ABC):
 
         # If true, you're the final target of the index_path
         if len(index_path) == 1:
-            self.value = new_value
+            self.terminal = new_terminal
             return
 
         # Push on to the next node on the path
         target_child = int(index_path[1])
-        self.children[target_child].alter_node_value(index_path[1:], new_value)
+        self.children[target_child].alter_node_terminal(index_path[1:], new_terminal)
 
     def graft_new_subtree(self, index_path, subtree_recipe) -> None:
         """ Graft a new subtree to replace the indexed node.
