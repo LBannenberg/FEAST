@@ -6,7 +6,8 @@ from feast.grammar import Grammar
 parameters = {
     'OUTPUT_DIR': 'experiment_output/',
 
-    'PROBLEM_TYPE': 1,  # OneMax,
+    # 'PROBLEM_TYPE': 1,  # OneMax,
+    'PROBLEM_TYPE': 19,  # Ising,
     'INSTANCE_ID': 1,
     'DIMENSION': 16,
     'PROBLEM_CLASS': ProblemClass.PBO,
@@ -32,7 +33,7 @@ def get_fresh_inner_heuristic(f):
     return TwoRateEa(
         problem=f,
         dimension=parameters['DIMENSION'],
-        budget=1000,
+        budget=parameters['INNER_BUDGET'],
         child_pop_size=16
     )
 
