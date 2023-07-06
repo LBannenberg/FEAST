@@ -17,6 +17,7 @@ class TwoRateEa(Heuristic):
         self.f_best = self.problem(self.best)
 
     def mutation(self, probability_per_bit):
+        # Generate a vector of flips with at least one flip
         mutations = []
         while sum(mutations) < 1:
             mutations = [int(random.random() <= probability_per_bit) for i in range(self.dimension)]
@@ -40,7 +41,7 @@ class TwoRateEa(Heuristic):
                     f_current_best = f
                     best_child_is_low = True
 
-            p = 2 * self.rate / self.dimension
+            p = 2 * self.rate / self.dimension  # TODO
             for i in range(math.floor(child_population_size / 2)):
                 child = self.mutation(p)
                 f = self.problem(child)
@@ -57,11 +58,13 @@ class TwoRateEa(Heuristic):
         return [int(self.f_best), self.best, self.problem]
 
     def _adapt_rate(self, best_child_is_low):
-        observables = {
+        observables = {  # TODO more observables (fitness rank, velocity..)
             'boolean': {'best_child_is_low': best_child_is_low},
             'numeric': {'rate': self.rate, 'dimension': self.dimension}
         }
-        self.rate = round(min(max(self.adaptation_function(observables), 0.001), 3), 10**10)
+        self.rate = round(min(max(
+            self.adaptation_function(observables),
+            0.001), 3), 10**10)  # bound within fairly wide range
 
     def inject_function(self, function):
         self.adaptation_function = function

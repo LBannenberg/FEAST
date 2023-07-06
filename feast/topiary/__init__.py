@@ -66,6 +66,8 @@ class Topiary(HyperHeuristic):
             return True
 
         # TODO: strict checks
+        # TODO: novelty constraint
+
 
         return True
 
