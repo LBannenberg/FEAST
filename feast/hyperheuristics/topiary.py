@@ -3,8 +3,7 @@ import random
 from ioh import ProblemType
 
 import feast.tree as tree
-from feast import HyperHeuristic
-import json
+from feast.hyperheuristics.base import HyperHeuristic
 from feast.grammar import Grammar
 from typing import Union, Tuple
 

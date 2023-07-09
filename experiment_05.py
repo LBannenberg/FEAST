@@ -1,5 +1,5 @@
 import common
-from feast.topiary import Topiary
+from feast.hyperheuristics import Topiary
 
 # Logger settings
 EXPERIMENT_NAME = common.parameters['OUTPUT_DIR'] + 'experiment_05'
@@ -36,8 +36,4 @@ print(f"Best Formula: {root.formula}")
 logger = common.get_logger(EXPERIMENT_NAME, ALGORITHM_NAME)
 problem.attach_logger(logger)
 
-for i in range(5):
-    inner_heuristic = common.build_two_rate_ea(problem, root.evaluate)
-    y_best, x_best, problem = inner_heuristic.run()
-    print(f"result: {y_best} as {x_best} using {problem.state.evaluations} evaluations")
-    problem.reset()
+common.benchmark(common.build_two_rate_ea, problem, root.evaluate)

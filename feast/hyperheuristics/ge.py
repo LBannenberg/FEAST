@@ -3,8 +3,7 @@ import random
 from ioh import ProblemType
 
 import feast.tree as tree
-import numpy as np
-from feast import HyperHeuristic
+from feast.hyperheuristics.base import HyperHeuristic
 
 
 class GE(HyperHeuristic):
@@ -54,8 +53,7 @@ class GE(HyperHeuristic):
         self.enforce_unique_phenotypes = enforce_unique_phenotypes
 
     def initialize_population(self):
-        # Generate a parent population, subject to uniqueness constraints
-
+        # Generate a parent population, subject to validation constraints constraints
         while len(self.parent_population) < self.parent_population_size:
             parent = [random.randint(0, self.codon_size - 1) for i in range(self.genome_length)]
             if self._validate(parent):

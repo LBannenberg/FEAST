@@ -1,3 +1,6 @@
+from typing import Callable
+
+import numpy as np
 from ioh import ProblemClass, get_problem, logger, ProblemType
 
 from metaheuristics.base import Heuristic
@@ -16,7 +19,8 @@ parameters = {
 
     'INNER_BUDGET': 5000,
     'OUTER_BUDGET': 500,
-    'OUTER_TRIALS': 5
+    'OUTER_TRIALS': 5,
+    'BENCHMARK_RUNS': 10
 }
 
 parameters['CHILD_POP_SIZE'] = parameters['DIMENSION']
@@ -63,3 +67,22 @@ def get_logger(experiment_name, algorithm_name):
 
 def get_grammar():
     return Grammar()
+
+
+def benchmark(metaheuristic_builder: Callable, problem: ProblemType, solution: Callable):
+    performance = []
+    for i in range(parameters['BENCHMARK_RUNS']):
+        inner_heuristic = metaheuristic_builder(problem, solution)
+        y_best, x_best, problem = inner_heuristic.run()
+
+        leftover_budget = inner_heuristic.budget - problem.state.evaluations
+        leftover_ratio = leftover_budget / inner_heuristic.budget
+        score = y_best + leftover_ratio  # leftover budget ratio is a tiebreaker
+
+        performance.append(score)
+
+        print(f"result: {y_best} as {x_best} using {problem.state.evaluations} evaluations")
+        problem.reset()
+
+    print(f"Aggregate score: {np.mean(performance)}")
+
