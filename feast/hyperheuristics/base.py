@@ -5,6 +5,7 @@ import random
 from ioh import ProblemType
 
 from feast.grammar import Grammar
+import feast.tree as tree
 
 
 class HyperHeuristic(ABC):
@@ -78,10 +79,10 @@ class HyperHeuristic(ABC):
         pass
 
     @abstractmethod
-    def _validate(self, child, strict) -> bool:
+    def _validate(self, individual: tree.Tree, strict: bool) -> bool:
         pass
 
-    def _evaluate(self, individual):
+    def _evaluate(self, individual: tree.Tree):
         performance = []
         for i in range(self.trials_per_evaluation):
             inner_heuristic = self.get_fresh_inner_heuristic(self.problem, individual.evaluate)
@@ -110,6 +111,6 @@ class HyperHeuristic(ABC):
         raise ValueError(f"Invalid survival rule: {self.survival}")
 
     @staticmethod
-    def _sort_by_fitness(population, fitness):
-        tuples = sorted(zip(population, fitness), key=lambda x: x[1], reverse=True)
+    def _sort_by_fitness(population, fitness, maximize=True):
+        tuples = sorted(zip(population, fitness), key=lambda x: x[1], reverse=maximize)
         return [t[0] for t in tuples], [t[1] for t in tuples]
