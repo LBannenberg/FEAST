@@ -63,14 +63,6 @@ class Topiary(HyperHeuristic):
             for terminal in self.must_observe:
                 if terminal not in serialized:
                     return False
-
-        if not strict:
-            return True
-
-        # TODO: strict checks
-        # TODO: novelty constraint
-
-
         return True
 
     def _generate_child(self) -> tree.Tree:

@@ -1,9 +1,7 @@
-import random
-
 from ioh import ProblemType
 
 import feast.tree as tree
-from feast import Grammar
+from feast.grammar import Grammar
 from feast.hyperheuristics.base import HyperHeuristic
 
 
