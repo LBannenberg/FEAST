@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import random
+
+from ioh import ProblemType
+
 from feast.grammar import Grammar
 
 
@@ -8,7 +11,7 @@ class HyperHeuristic(ABC):
     def __init__(self,
                  grammar: Grammar,
                  starting_symbol: str,
-                 get_fresh_problem,
+                 problem: ProblemType,
                  get_fresh_inner_heuristic,
                  outer_budget: int,
                  trials_per_evaluation: int,
@@ -22,7 +25,7 @@ class HyperHeuristic(ABC):
         self.grammar = grammar
         self.starting_symbol: str = starting_symbol
 
-        self.get_fresh_problem = get_fresh_problem
+        self.problem = problem
         self.get_fresh_inner_heuristic = get_fresh_inner_heuristic
 
         self.outer_budget = outer_budget
@@ -80,11 +83,15 @@ class HyperHeuristic(ABC):
     def _evaluate(self, individual):
         performance = []
         for i in range(self.trials_per_evaluation):
-            f = self.get_fresh_problem()
-            inner_heuristic = self.get_fresh_inner_heuristic(f)
-            inner_heuristic.inject_function(individual.evaluate)
+            inner_heuristic = self.get_fresh_inner_heuristic(self.problem, individual.evaluate)
             y_best, x_best, f = inner_heuristic.run()
-            performance.append(f.state.evaluations)
+
+            leftover_budget = inner_heuristic.budget - f.state.evaluations
+            leftover_ratio = leftover_budget / inner_heuristic.budget
+            score = y_best + leftover_ratio  # leftover budget ratio is a tiebreaker
+
+            performance.append(score)
+            self.problem.reset()
         self.budget_used += 1
         return np.mean(performance)
 
@@ -103,6 +110,6 @@ class HyperHeuristic(ABC):
 
     @staticmethod
     def _sort_by_fitness(population, fitness):
-        tuples = sorted(zip(population, fitness), key=lambda x: x[1])
+        tuples = sorted(zip(population, fitness), key=lambda x: x[1], reverse=True)
         return [t[0] for t in tuples], [t[1] for t in tuples]
 

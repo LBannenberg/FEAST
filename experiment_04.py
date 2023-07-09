@@ -5,12 +5,14 @@ from feast.ge import GE
 EXPERIMENT_NAME = common.parameters['OUTPUT_DIR'] + 'experiment_04'
 ALGORITHM_NAME = 'classic-GE'
 
+problem = common.get_fresh_problem()
+
 ge = GE(
     common.get_grammar(),
     'NUM',
-    common.get_fresh_problem,
-    common.get_fresh_inner_heuristic,
-    common.parameters['OUTER_BUDGET'],
+    problem=problem,
+    get_fresh_inner_heuristic=common.build_two_rate_ea,
+    outer_budget=common.parameters['OUTER_BUDGET'],
     trials_per_evaluation=common.parameters['OUTER_TRIALS'],
     parent_population_size=10,
     child_population_size=15,
@@ -36,12 +38,11 @@ for i in range(ge.parent_population_size):
 root = ge.get_individual(0)
 print(f"Best Formula: {root.formula}")
 
-for i in range(5):
-    f = common.get_fresh_problem()
-    l = common.get_logger(EXPERIMENT_NAME, ALGORITHM_NAME)
-    f.attach_logger(l)
+logger = common.get_logger(EXPERIMENT_NAME, ALGORITHM_NAME)
+problem.attach_logger(logger)
 
-    inner_heuristic = common.get_fresh_inner_heuristic(f)
-    inner_heuristic.inject_function(root.evaluate)
-    y_best, x_best, f = inner_heuristic.run()
-    print(f"result: {y_best} as {x_best} using {f.state.evaluations} evaluations")
+for i in range(5):
+    inner_heuristic = common.build_two_rate_ea(problem, root.evaluate)
+    y_best, x_best, problem = inner_heuristic.run()
+    print(f"result: {y_best} as {x_best} using {problem.state.evaluations} evaluations")
+    problem.reset()

@@ -1,4 +1,6 @@
-from ioh import ProblemClass, get_problem, logger
+from ioh import ProblemClass, get_problem, logger, ProblemType
+
+from metaheuristics.base import Heuristic
 from metaheuristics.tworate import TwoRateEa
 import os
 from feast.grammar import Grammar
@@ -12,9 +14,9 @@ parameters = {
     'DIMENSION': 16,
     'PROBLEM_CLASS': ProblemClass.PBO,
 
-    'INNER_BUDGET': 1000,
-    'OUTER_BUDGET': 100,
-    'OUTER_TRIALS': 3
+    'INNER_BUDGET': 5000,
+    'OUTER_BUDGET': 500,
+    'OUTER_TRIALS': 5
 }
 
 parameters['CHILD_POP_SIZE'] = parameters['DIMENSION']
@@ -29,13 +31,24 @@ def get_fresh_problem():
     )
 
 
-def get_fresh_inner_heuristic(f):
-    return TwoRateEa(
-        problem=f,
-        dimension=parameters['DIMENSION'],
-        budget=parameters['INNER_BUDGET'],
-        child_pop_size=16
+def get_fresh_inner_heuristic(problem: ProblemType, injection):
+    heuristic = TwoRateEa(parameters['CHILD_POP_SIZE'])
+    heuristic.configure(
+        problem,
+        parameters['INNER_BUDGET'],
+        injection
     )
+
+
+def build_two_rate_ea(problem: ProblemType, individual_evaluate) -> Heuristic:
+    heuristic = TwoRateEa(parameters['CHILD_POP_SIZE'])
+    heuristic.configure(
+        problem,
+        parameters['INNER_BUDGET'],
+        {'adaptation': individual_evaluate}
+    )
+    heuristic.initialize_population()
+    return heuristic
 
 
 def get_logger(experiment_name, algorithm_name):

@@ -1,4 +1,7 @@
 import random
+
+from ioh import ProblemType
+
 import feast.tree as tree
 import numpy as np
 from feast import HyperHeuristic
@@ -9,7 +12,7 @@ class GE(HyperHeuristic):
             self,
             grammar,
             starting_symbol: str,
-            get_fresh_problem,
+            problem: ProblemType,
             get_fresh_inner_heuristic,
             outer_budget: int,
             parent_population_size: int,
@@ -29,7 +32,7 @@ class GE(HyperHeuristic):
         super().__init__(
             grammar,
             starting_symbol,
-            get_fresh_problem,
+            problem,
             get_fresh_inner_heuristic,
             outer_budget,
             trials_per_evaluation,

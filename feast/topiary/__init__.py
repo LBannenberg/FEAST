@@ -1,4 +1,7 @@
 import random
+
+from ioh import ProblemType
+
 import feast.tree as tree
 from feast import HyperHeuristic
 import json
@@ -11,7 +14,7 @@ class Topiary(HyperHeuristic):
             self,
             grammar: Grammar,
             starting_symbol: str,
-            get_fresh_problem,
+            problem: ProblemType,
             get_fresh_inner_heuristic,
             outer_budget: int,
             parent_population_size: int,
@@ -25,7 +28,7 @@ class Topiary(HyperHeuristic):
         super().__init__(
             grammar,
             starting_symbol,
-            get_fresh_problem,
+            problem,
             get_fresh_inner_heuristic,
             outer_budget,
             trials_per_evaluation,
