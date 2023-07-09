@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+from typing import Callable
+
 import numpy as np
 import random
 
@@ -13,21 +15,23 @@ class HyperHeuristic(ABC):
                  grammar: Grammar,
                  starting_symbol: str,
                  problem: ProblemType,
-                 get_fresh_inner_heuristic,
+                 build_inner_heuristic: Callable,
                  outer_budget: int,
                  trials_per_evaluation: int,
                  parent_population_size: int,
                  child_population_size: int,
-                 survival: str = 'comma',
+                 survival: str,
+                 cache_phenotype_evaluations: bool = False,
                  random_seed=None,
                  must_observe=None
                  ):
 
+        self.cache_phenotype_evaluations = cache_phenotype_evaluations
         self.grammar = grammar
         self.starting_symbol: str = starting_symbol
 
         self.problem = problem
-        self.get_fresh_inner_heuristic = get_fresh_inner_heuristic
+        self.build_inner_heuristic = build_inner_heuristic
 
         self.outer_budget = outer_budget
         self.trials_per_evaluation = trials_per_evaluation
@@ -45,6 +49,10 @@ class HyperHeuristic(ABC):
         self.parent_population_fitness = []
         self.parent_population = []
 
+        self.evaluated_phenotypes_cache = {}
+        self.phenotype_cache_hits = 0
+        self.phenotype_cache_misses = 0
+
     @abstractmethod
     def initialize_population(self):
         pass
@@ -54,9 +62,8 @@ class HyperHeuristic(ABC):
         generation = 0
         while (self.budget_used + self.child_population_size) <= self.outer_budget:
             generation += 1
-            if not self.budget_used % 5:
-                print(f"  generation {generation} (budget: {self.budget_used}/{self.outer_budget}")
-                print(self.parent_population_fitness)
+            print(f"  generation {generation} (budget: {self.budget_used}/{self.outer_budget}")
+            print(self.parent_population_fitness)
 
             # Generate new child population
             child_population = []
@@ -64,7 +71,8 @@ class HyperHeuristic(ABC):
             while len(child_population) < self.child_population_size:
                 child = self._generate_child()  # includes variation
                 attempts += 1
-                strict = attempts < 5
+                # strict = attempts < 5
+                strict = True
                 if self._validate(child, strict=strict):
                     child_population.append(child)
                     attempts = 0
@@ -73,6 +81,9 @@ class HyperHeuristic(ABC):
             child_population_fitness = [self._evaluate(child) for child in child_population]
             self.parent_population, self.parent_population_fitness = self._survival(
                 child_population, child_population_fitness)
+            print(f"Generation {generation} cache hit rate: {self.phenotype_cache_hits / (self.phenotype_cache_hits + self.phenotype_cache_misses+1)}")
+        if self.cache_phenotype_evaluations:
+            print(f"There were {self.phenotype_cache_hits} phenotype evaluation cache hits")
 
     @abstractmethod
     def _generate_child(self):
@@ -83,9 +94,17 @@ class HyperHeuristic(ABC):
         pass
 
     def _evaluate(self, individual: tree.Tree):
+        if self.cache_phenotype_evaluations:
+            serialized_phenotype = individual.serialize()
+            if serialized_phenotype in self.evaluated_phenotypes_cache:
+                self.phenotype_cache_hits += 1
+                return self.evaluated_phenotypes_cache[serialized_phenotype]
+            else:
+                self.phenotype_cache_misses += 1
+
         performance = []
         for i in range(self.trials_per_evaluation):
-            inner_heuristic = self.get_fresh_inner_heuristic(self.problem, individual.evaluate)
+            inner_heuristic = self.build_inner_heuristic(self.problem, individual.evaluate)
             y_best, x_best, f = inner_heuristic.run()
 
             leftover_budget = inner_heuristic.budget - f.state.evaluations
@@ -95,7 +114,10 @@ class HyperHeuristic(ABC):
             performance.append(score)
             self.problem.reset()
         self.budget_used += 1
-        return np.mean(performance)
+        result = np.mean(performance)
+        if self.cache_phenotype_evaluations:
+            self.evaluated_phenotypes_cache[individual.serialize()] = result
+        return result
 
     def _survival(self, child_population, child_population_fitness):
         if self.survival == 'comma':

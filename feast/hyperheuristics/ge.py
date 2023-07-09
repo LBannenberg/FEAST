@@ -1,4 +1,5 @@
 import random
+from typing import Callable
 
 from ioh import ProblemType
 
@@ -10,10 +11,10 @@ from feast.hyperheuristics.base import HyperHeuristic
 class GE(HyperHeuristic):
     def __init__(
             self,
-            grammar,
+            grammar: Grammar,
             starting_symbol: str,
             problem: ProblemType,
-            get_fresh_inner_heuristic,
+            build_inner_heuristic: Callable,
             outer_budget: int,
             parent_population_size: int,
             child_population_size: int,
@@ -26,21 +27,23 @@ class GE(HyperHeuristic):
             enforce_unique_coding_genotypes=False,
             enforce_unique_phenotypes=False,
             survival: str = 'comma',
+            cache_phenotype_evaluations=False,
             random_seed=None,
             must_observe=None
     ):
         super().__init__(
-            grammar,
-            starting_symbol,
-            problem,
-            get_fresh_inner_heuristic,
-            outer_budget,
-            trials_per_evaluation,
-            parent_population_size,
-            child_population_size,
-            survival,
-            random_seed,
-            must_observe
+            grammar=grammar,
+            starting_symbol=starting_symbol,
+            problem=problem,
+            build_inner_heuristic=build_inner_heuristic,
+            outer_budget=outer_budget,
+            trials_per_evaluation=trials_per_evaluation,
+            parent_population_size=parent_population_size,
+            child_population_size=child_population_size,
+            survival=survival,
+            cache_phenotype_evaluations=cache_phenotype_evaluations,
+            random_seed=random_seed,
+            must_observe=must_observe
         )
         self.genotypes = set()
         self.coding_genotypes = set()

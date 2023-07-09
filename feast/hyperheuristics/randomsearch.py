@@ -10,22 +10,24 @@ class RandomSearch(HyperHeuristic):
                  grammar: Grammar,
                  starting_symbol: str,
                  problem: ProblemType,
-                 get_fresh_inner_heuristic,
+                 build_inner_heuristic,
                  outer_budget: int,
                  trials_per_evaluation: int,
                  must_observe=None,
+                 cache_phenotype_evaluations: bool = True,
                  soft_limit=3
                  ):
         super().__init__(
-            grammar,
-            starting_symbol,
-            problem,
-            get_fresh_inner_heuristic,
-            outer_budget,
-            trials_per_evaluation,
+            grammar=grammar,
+            starting_symbol=starting_symbol,
+            problem=problem,
+            build_inner_heuristic=build_inner_heuristic,
+            outer_budget=outer_budget,
+            trials_per_evaluation=trials_per_evaluation,
             parent_population_size=1,
             child_population_size=1,
-            survival='plus'
+            survival='plus',
+            cache_phenotype_evaluations=cache_phenotype_evaluations
         )
         self.soft_limit = soft_limit
         self.must_observe = must_observe
